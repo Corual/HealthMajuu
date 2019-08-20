@@ -12,6 +12,7 @@ namespace ManjuuPing
             Console.WriteLine("Hello World!");
 
             PingCoreCode();
+            Console.WriteLine("开始工作了");
             Console.ReadLine();
         }
 
