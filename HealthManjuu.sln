@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManjuuInfrastructure", "Man
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManjuuPing", "ManjuuPing\ManjuuPing.csproj", "{D875B4EB-8E73-4B95-8364-D34BD3AD99DD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManjuuNUnitTest", "ManjuuNUnitTest\ManjuuNUnitTest.csproj", "{923AD438-0C21-47E2-86CA-7DDC7BD35875}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManjuuNUnitTest", "ManjuuNUnitTest\ManjuuNUnitTest.csproj", "{923AD438-0C21-47E2-86CA-7DDC7BD35875}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManjuuManagement", "ManjuuManagement\ManjuuManagement.csproj", "{5A5503E9-5309-4B61-80C8-458B4C5F5C28}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{923AD438-0C21-47E2-86CA-7DDC7BD35875}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{923AD438-0C21-47E2-86CA-7DDC7BD35875}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{923AD438-0C21-47E2-86CA-7DDC7BD35875}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A5503E9-5309-4B61-80C8-458B4C5F5C28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A5503E9-5309-4B61-80C8-458B4C5F5C28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A5503E9-5309-4B61-80C8-458B4C5F5C28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A5503E9-5309-4B61-80C8-458B4C5F5C28}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
