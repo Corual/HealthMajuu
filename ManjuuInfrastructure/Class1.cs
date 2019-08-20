@@ -4,5 +4,6 @@ namespace ManjuuInfrastructure
 {
     public class Class1
     {
+
     }
 }
