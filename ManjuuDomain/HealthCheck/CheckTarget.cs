@@ -6,10 +6,11 @@ namespace ManjuuDomain.HealthCheck
 {
     public class CheckTarget : SupEntity
     {
+        #region 属性
         /// <summary>
         /// ip地址
         /// </summary>
-        public string IpAddres { get; private set; }
+        public string IpAddresV4 { get; private set; }
 
         /// <summary>
         /// 目标端口号
@@ -20,6 +21,24 @@ namespace ManjuuDomain.HealthCheck
         /// 备注
         /// </summary>
         public string Remarks { get; private set; }
+        #endregion
+
+
+        #region 构造函数
+        public CheckTarget()
+        {
+
+        }
+
+        public CheckTarget(string ipv4, string port, string remarks)
+        {
+            this.IpAddresV4 = ipv4;
+            this.TargetPort = port;
+            this.Remarks = remarks;
+        }
+        #endregion
+
+
 
     }
 }
