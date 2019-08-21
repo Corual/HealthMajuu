@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ManjuuPing
 {
@@ -9,14 +11,24 @@ namespace ManjuuPing
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            //判断程序运行平台
+            OSPlatform osP = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)?OSPlatform.Windows:
+            RuntimeInformation.IsOSPlatform(OSPlatform.Linux)?OSPlatform.Linux:OSPlatform.OSX;
+            Console.WriteLine($"woking in {osP}");
 
-            PingCoreCode();
+            Task pingTask = PingCoreCode();
             Console.WriteLine("开始工作了");
-            Console.ReadLine();
+            
+            if(OSPlatform.Windows == osP)
+            {
+                Console.ReadLine();
+            }else
+            {
+                pingTask.Wait();
+            }
         }
 
-        public static async void PingCoreCode()
+        public static async Task PingCoreCode()
         {
             try
             {
@@ -24,7 +36,7 @@ namespace ManjuuPing
                 {
                     ProcessStartInfo startInfo = process.StartInfo;
                     startInfo.FileName = "ping";
-                    startInfo.Arguments = "www.baidu.com";
+                    startInfo.Arguments = "www.baidu.com -c 4";
                     startInfo.RedirectStandardOutput = true;
                     //startInfo.StandardOutputEncoding = Encoding.UTF8;
                     process.Start();
