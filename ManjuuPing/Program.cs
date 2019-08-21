@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using ManjuuDomain.HealthCheck;
 
 namespace ManjuuPing
 {
@@ -11,21 +12,16 @@ namespace ManjuuPing
     {
         static void Main(string[] args)
         {
-            //判断程序运行平台
-            OSPlatform osP = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)?OSPlatform.Windows:
-            RuntimeInformation.IsOSPlatform(OSPlatform.Linux)?OSPlatform.Linux:OSPlatform.OSX;
-            Console.WriteLine($"woking in {osP}");
-
-            Task pingTask = PingCoreCode();
-            Console.WriteLine("开始工作了");
             
-            if(OSPlatform.Windows == osP)
-            {
-                Console.ReadLine();
-            }else
-            {
-                pingTask.Wait();
-            }
+
+            //Task pingTask = PingCoreCode();
+
+            new CheckTarget("www.baidu.com","80","百度").TryPingAsync();
+            new CheckTarget("www.bilibili.com","80","哔哩哔哩").TryPingAsync();
+            new CheckTarget("www.jianshu.com","80","简书").TryPingAsync();
+            new CheckTarget("www.google.com","80","谷歌").TryPingAsync();
+            Console.WriteLine("开始工作了");
+            Console.ReadKey();
         }
 
         public static async Task PingCoreCode()

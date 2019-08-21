@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
+using ManjuuDomain.HealthCheckService;
+using ManjuuDomain.IDomain;
 using ManjuuDomain.Suppers;
 namespace ManjuuDomain.HealthCheck
 {
-    public class CheckTarget : SupEntity
+    public class CheckTarget : SupEntity,IPingable
     {
         #region 属性
         /// <summary>
@@ -38,6 +41,13 @@ namespace ManjuuDomain.HealthCheck
         }
         #endregion
 
+
+        public Task TryPingAsync()
+        {
+            return Task.Run(()=>{
+                return CheckTargetService.PingRemoteTargetAsync(this);
+             });
+        }
 
 
     }
