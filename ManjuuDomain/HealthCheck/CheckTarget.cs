@@ -42,10 +42,26 @@ namespace ManjuuDomain.HealthCheck
         #endregion
 
 
-        public Task TryPingAsync()
+        /// <summary>
+        /// 尝试异步ping目标地址
+        /// </summary>
+        /// <returns></returns>
+        public  Task TryPingAsync()
         {
-            return Task.Run(()=>{
-                return CheckTargetService.PingRemoteTargetAsync(this);
+            return Task.Run(async ()=>{
+                string pingResult = await CheckTargetService.PingRemoteTargetAsync(this);
+                Console.WriteLine($"TryPingAsync=>{this.Remarks}调用结束" );
+
+                //返回空串证明地址ping出了异常
+                if(string.IsNullOrWhiteSpace(pingResult))
+                {
+                    //既然已经异常了，就退出当前任务执行，可以考虑统计同一个地址出错次数，一定时间内冻结任务，避免过多的访问不正常的地址
+                    return;
+                }
+
+
+
+
              });
         }
 

@@ -11,8 +11,14 @@ namespace ManjuuDomain.HealthCheckService
 {
     public static class CheckTargetService
     {
+        /// <summary>
+        /// 操作系统平台
+        /// </summary>
         private static OSPlatform _platform;
 
+        /// <summary>
+        /// Ping命令
+        /// </summary>
         private static SupPingCmd _pingCmd;
 
         static CheckTargetService()
@@ -27,9 +33,14 @@ namespace ManjuuDomain.HealthCheckService
             _pingCmd = new UniformPingFactory(_platform).PingCmd;
         }
 
-        public static async Task PingRemoteTargetAsync(IPingable target)
+        /// <summary>
+        /// 异步Ping远程目标
+        /// </summary>
+        /// <param name="target">目标</param>
+        /// <returns>方法执行成功返回非空且非空白字符串，否则统一返回空串</returns>
+        public static async Task<string> PingRemoteTargetAsync(IPingable target)
         {
-
+            string result = string.Empty;
             try
             {
                 using (Process process = new Process())
@@ -37,7 +48,7 @@ namespace ManjuuDomain.HealthCheckService
                     ProcessStartInfo startInfo = process.StartInfo;
                     startInfo.FileName = _pingCmd.PingName;
                     //对目标执行ping操作四次
-                   startInfo.Arguments = string.Format(_pingCmd.CmdFotmat,target.IpAddresV4,4.ToString());
+                    startInfo.Arguments = string.Format(_pingCmd.CmdFotmat, target.IpAddresV4, 4.ToString());
 
 
                     //重定向输出流，便于获取ping命令结果
@@ -47,7 +58,7 @@ namespace ManjuuDomain.HealthCheckService
                     process.Start();
                     using (StreamReader reader = process.StandardOutput)
                     {
-                        string result = await reader.ReadToEndAsync();
+                        result = await reader.ReadToEndAsync();
                         System.Console.WriteLine($"{target.Remarks}执行完成===={DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss:ffff")}====");
                         Console.WriteLine(result);
                     }
@@ -58,6 +69,8 @@ namespace ManjuuDomain.HealthCheckService
             {
                 System.Console.WriteLine(ex.Message);
             }
+
+            return result;
         }
 
     }
