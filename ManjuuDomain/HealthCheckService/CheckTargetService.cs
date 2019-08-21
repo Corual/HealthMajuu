@@ -4,12 +4,16 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using ManjuuDomain.IDomain;
+using ManjuuDomain.PingExecuter;
+using ManjuuDomain.Suppers;
 
 namespace ManjuuDomain.HealthCheckService
 {
     public static class CheckTargetService
     {
         private static OSPlatform _platform;
+
+        private static SupPingCmd _pingCmd;
 
         static CheckTargetService()
         {
@@ -18,6 +22,9 @@ namespace ManjuuDomain.HealthCheckService
                 RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? OSPlatform.Linux : OSPlatform.OSX;
 
             System.Console.WriteLine($"wroking in {_platform}");
+
+
+            _pingCmd = new UniformPingFactory(_platform).PingCmd;
         }
 
         public static async Task PingRemoteTargetAsync(IPingable target)
@@ -28,20 +35,9 @@ namespace ManjuuDomain.HealthCheckService
                 using (Process process = new Process())
                 {
                     ProcessStartInfo startInfo = process.StartInfo;
-                    startInfo.FileName = "ping";
+                    startInfo.FileName = _pingCmd.PingName;
                     //对目标执行ping操作四次
-                    if (OSPlatform.Linux == _platform)
-                    {
-                        startInfo.Arguments = $"{target.IpAddresV4} -c 4";
-                    }
-                    else if (OSPlatform.Windows == _platform)
-                    {
-                        startInfo.Arguments = $"{target.IpAddresV4} -n 4";
-                    }
-                    else
-                    {
-                        startInfo.Arguments = $"{target.IpAddresV4}";
-                    }
+                   startInfo.Arguments = string.Format(_pingCmd.CmdFotmat,target.IpAddresV4,4.ToString());
 
 
                     //重定向输出流，便于获取ping命令结果
