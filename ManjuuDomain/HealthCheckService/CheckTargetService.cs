@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ManjuuDomain.IDomain;
 using ManjuuDomain.PingExecuter;
 using ManjuuDomain.Suppers;
+using ManjuuDomain.Tools;
 
 namespace ManjuuDomain.HealthCheckService
 {
@@ -23,12 +24,10 @@ namespace ManjuuDomain.HealthCheckService
 
         static CheckTargetService()
         {
-            //判断程序运行平台
-            _platform = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? OSPlatform.Windows :
-                RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? OSPlatform.Linux : OSPlatform.OSX;
+            
+            _platform = OsPaltformMgr.GetInstance().Platform;
 
             System.Console.WriteLine($"wroking in {_platform}");
-
 
             _pingCmd = new UniformPingFactory(_platform).PingCmd;
         }
