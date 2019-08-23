@@ -167,23 +167,24 @@ namespace ManjuuDomain.HealthCheck
         {
 
 
-           Assembly convertAssembly =  Assembly.Load($"ManjuuDomain.ExtractInfos.{extractInfo.InfoType.ToString()}ResultConverter");
+            Assembly convertAssembly = Assembly.GetAssembly(typeof(CheckReesultInfo));
 
-            ConstructorInfo  contInfo = convertAssembly.GetType().GetConstructor(new Type[]{ typeof(string), typeof(string), typeof(string), typeof(DateTime) });
+            ConstructorInfo contInfo = convertAssembly.GetType($"ManjuuDomain.ExtractInfos.{extractInfo.InfoType.ToString()}ResultConverter")
+            .GetConstructor(new Type[] { typeof(string), typeof(string), typeof(string), typeof(DateTime) });
 
-            if(null == contInfo)
+            if (null == contInfo)
             {
                 throw new EntryPointNotFoundException($"状态{extractInfo.InfoType.ToString()}没有对应的处理程序");
             }
 
-           IResultConverter resultConverter = contInfo.Invoke(new object[]{ipV4,port,remarks,receiveTime }) as IResultConverter;
+            IResultConverter resultConverter = contInfo.Invoke(new object[] { ipV4, port, remarks, receiveTime }) as IResultConverter;
 
-           if(null == resultConverter)
-           {
-               throw new NotSupportedException($"状态{extractInfo.InfoType.ToString()}无法使用IResultConverter处理");
-           }
+            if (null == resultConverter)
+            {
+                throw new NotSupportedException($"状态{extractInfo.InfoType.ToString()}无法使用IResultConverter处理");
+            }
 
-           return resultConverter.Convert(extractInfo);
+            return resultConverter.Convert(extractInfo);
 
         }
 
@@ -199,15 +200,15 @@ namespace ManjuuDomain.HealthCheck
             }
             else if (Status == PingResultStatus.PingNotfound)
             {
-                return $"[{IpAddresV4}]{Remarks}:{(PingResultStatusChs)((int)Status)},没有安装ping命令";
+                return $"[{IpAddresV4}]{Remarks}:{(PingResultStatusChs)((int)Status)},环境没有安装ping命令";
             }
             else if (Status == PingResultStatus.ExecuteError)
             {
-                return $"[{IpAddresV4}]{Remarks}:{(PingResultStatusChs)((int)Status)},命令执行错误";
+                return $"[{IpAddresV4}]{Remarks}:{(PingResultStatusChs)((int)Status)},又命令参数不正确，请查看具体异常日志";
             }
             else if (Status == PingResultStatus.NoneResult)
             {
-                return $"[{IpAddresV4}]{Remarks}:{(PingResultStatusChs)((int)Status)},没有解析结果，需要排除并通知作者更新程序";
+                return $"[{IpAddresV4}]{Remarks}:{(PingResultStatusChs)((int)Status)}，需要排除并通知作者更新程序";
             }
 
 
@@ -221,6 +222,6 @@ namespace ManjuuDomain.HealthCheck
 
     }
 
-   
+
 
 }

@@ -4,7 +4,7 @@ namespace ManjuuDomain.ExtractInfos
 {
     public struct ExtractInfo
     {
-        public static ExtractInfo ZeroInfo { get; private set; } = new ExtractInfo();
+        public static ExtractInfo ZeroInfo { get; private set; } = new ExtractInfo(){InfoType = PingResultStatus.NoneResult};
 
         /// <summary>
         /// 地址

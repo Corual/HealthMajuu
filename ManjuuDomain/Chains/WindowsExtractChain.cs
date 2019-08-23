@@ -34,6 +34,7 @@ namespace ManjuuDomain.Chains
                }
             }
 
+
             return ExtractInfo.ZeroInfo;
         }
 

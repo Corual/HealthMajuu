@@ -69,8 +69,9 @@ namespace ManjuuDomain.HealthCheck
                     return;
                 }
 
+                //todo:将非正常结果推送到消息队列(考虑开发时间问题,目前先直接写入数据库)
 
-
+                
             });
         }
 
