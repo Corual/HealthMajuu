@@ -21,6 +21,6 @@ namespace ManjuuDomain.Tools
             return _instance;            
         }
         
-
+        
     }
 }

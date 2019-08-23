@@ -4,7 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using ManjuuDomain.IDomain;
-using ManjuuDomain.PingExecuter;
+using ManjuuDomain.PingCommands;
 using ManjuuDomain.Suppers;
 using ManjuuDomain.Tools;
 
@@ -46,13 +46,15 @@ namespace ManjuuDomain.HealthCheckService
                 {
                     ProcessStartInfo startInfo = process.StartInfo;
                     startInfo.FileName = _pingCmd.PingName;
-                    //对目标执行ping操作四次
-                    startInfo.Arguments = string.Format(_pingCmd.CmdFotmat, target.IpAddresV4, 4.ToString());
+                    //对目标执行ping操作四次,超时为1秒
+                    startInfo.Arguments = string.Format($" {target.IpAddresV4} {_pingCmd.RepeatParam} 4 {_pingCmd.TimeoutParam} 1000");
 
 
                     //重定向输出流，便于获取ping命令结果
                     startInfo.RedirectStandardOutput = true;
                     //startInfo.StandardOutputEncoding = Encoding.UTF8;
+
+                    Console.WriteLine($"执行命令:{_pingCmd.PingName} {startInfo.Arguments}");
                     //开始执行命令
                     process.Start();
                     using (StreamReader reader = process.StandardOutput)

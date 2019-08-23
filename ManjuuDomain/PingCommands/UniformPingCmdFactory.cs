@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 using ManjuuDomain.IDomain;
 using ManjuuDomain.Suppers;
 
-namespace ManjuuDomain.PingExecuter
+namespace ManjuuDomain.PingCommands
 {
     /// <summary>
     /// 统一的ping命令工厂

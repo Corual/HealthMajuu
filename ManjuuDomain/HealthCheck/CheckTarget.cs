@@ -53,28 +53,28 @@ namespace ManjuuDomain.HealthCheck
                 string pingResult = await CheckTargetService.PingRemoteTargetAsync(this);
                 Console.WriteLine($"TryPingAsync=>{this.Remarks}调用结束");
 
-                //返回空串证明地址ping出了异常
-                if (string.IsNullOrWhiteSpace(pingResult))
+                ////返回空串证明地址ping出了异常
+                //if (string.IsNullOrWhiteSpace(pingResult))
+                //{
+                //    //既然已经异常了，就退出当前任务执行，可以考虑统计同一个地址出错次数，一定时间内冻结任务，避免过多的访问不正常的地址
+                //    return;
+                //}
+
+                CheckReesultInfo checkReesultInfo = await CheckResultService.UnscramblePingResultAsync(IpAddresV4,TargetPort,Remarks,DateTime.UtcNow,pingResult);
+
+                Console.WriteLine(checkReesultInfo.GetResultInfoString());
+
+                if (PingResultStatus.Pass == checkReesultInfo.Status)
                 {
-                    //既然已经异常了，就退出当前任务执行，可以考虑统计同一个地址出错次数，一定时间内冻结任务，避免过多的访问不正常的地址
                     return;
                 }
 
-
-            //    await UnscramblePingResultAsync(pingResult);
 
 
             });
         }
 
-        /// <summary>
-        /// 解析Ping执行结果
-        /// </summary>
-        /// <param name="result">ping执行结果</param>
-        // private  Task UnscramblePingResultAsync(string result)
-        // {
 
-        // }
 
 
     }

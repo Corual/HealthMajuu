@@ -1,5 +1,8 @@
 namespace ManjuuDomain.Suppers
 {
+    /// <summary>
+    /// 平台ping命令抽象
+    /// </summary>
     public abstract class SupPingCmd
     {
         /// <summary>
@@ -9,10 +12,15 @@ namespace ManjuuDomain.Suppers
         public virtual string PingName{get; protected set;} = "ping";
 
         /// <summary>
-        /// 命令格式
+        /// 重复参数
         /// </summary>
-        /// <value></value>
-        public abstract string CmdFotmat{get; protected set;}
+        public abstract string RepeatParam { get; protected set; }
+
+
+        /// <summary>
+        /// 超时参数
+        /// </summary>
+        public abstract string TimeoutParam { get; protected set; }
 
     }
 }
