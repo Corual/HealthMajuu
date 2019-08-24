@@ -18,7 +18,7 @@ namespace ManjuuDomain.Chains
              if (OSPlatform.Windows == osplatform)
             {
                 WindowsExtractChain winChain = new WindowsExtractChain();
-                winChain.AddExtractor(new WinChsExtractChain());
+                winChain.AddExtractor(new WinEnExtractChain()).AddExtractor(new WinChsExtractChain());
                 _chain = winChain;
             }
             else if (OSPlatform.Linux == osplatform)

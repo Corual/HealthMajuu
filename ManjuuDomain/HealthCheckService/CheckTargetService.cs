@@ -47,6 +47,7 @@ namespace ManjuuDomain.HealthCheckService
                     ProcessStartInfo startInfo = process.StartInfo;
                     startInfo.FileName = _pingCmd.PingName;
                     //对目标执行ping操作四次,超时为1秒
+                    //todao:这里的ping4次数跟超时预设，需要使用数据库配置
                     startInfo.Arguments = string.Format($" {target.IpAddresV4} {_pingCmd.RepeatParam} 4 {_pingCmd.TimeoutParam} 1000");
 
 
@@ -54,13 +55,13 @@ namespace ManjuuDomain.HealthCheckService
                     startInfo.RedirectStandardOutput = true;
                     //startInfo.StandardOutputEncoding = Encoding.UTF8;
 
-                    Console.WriteLine($"执行命令:{_pingCmd.PingName} {startInfo.Arguments}");
+                    Console.WriteLine($"执行命令:{_pingCmd.PingName} {startInfo.Arguments}{Environment.NewLine}");
                     //开始执行命令
                     process.Start();
                     using (StreamReader reader = process.StandardOutput)
                     {
                         result = await reader.ReadToEndAsync();
-                        System.Console.WriteLine($"{target.Remarks}执行完成===={DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss:ffff")}====");
+                        System.Console.WriteLine($"{target.Remarks}执行完成===={DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss:ffff")}===={Environment.NewLine}");
                         Console.WriteLine(result);
                     }
 
@@ -73,6 +74,9 @@ namespace ManjuuDomain.HealthCheckService
 
             return result;
         }
+
+
+
 
     }
 }

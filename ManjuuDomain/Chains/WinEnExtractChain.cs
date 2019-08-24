@@ -7,49 +7,48 @@ using ManjuuDomain.Tools;
 
 namespace ManjuuDomain.Chains
 {
-    /// <summary>
-    /// 简体中文windows结果提取链
-    /// </summary>
-    public class WinChsExtractChain : IExtractable
+    public class WinEnExtractChain : IExtractable
     {
         public ExtractInfo Extract(string result)
         {
             ExtractInfo extInfo = new ExtractInfo();
 
             #region 情况一         
-            // 正在 Ping 127.0.0.1 具有 32 字节的数据:
-            // 来自 127.0.0.1 的回复: 字节=32 时间<1ms TTL=128
-            // 来自 127.0.0.1 的回复: 字节=32 时间<1ms TTL=128
-            // 来自 127.0.0.1 的回复: 字节=32 时间<1ms TTL=128
-            // 来自 127.0.0.1 的回复: 字节=32 时间<1ms TTL=128
+            // Pinging www.a.shifen.com [14.215.177.38] with 32 bytes of data:
+            // Reply from 14.215.177.38: bytes=32 time=9ms TTL=128
+            // Reply from 14.215.177.38: bytes=32 time=11ms TTL=128
+            // Reply from 14.215.177.38: bytes=32 time=9ms TTL=128
+            // Reply from 14.215.177.38: bytes=32 time=9ms TTL=128
 
-            // 127.0.0.1 的 Ping 统计信息:
-            //     数据包: 已发送 = 4，已接收 = 4，丢失 = 0 (0% 丢失)，
-            // 往返行程的估计时间(以毫秒为单位):
-            //     最短 = 0ms，最长 = 0ms，平均 = 0ms
+            // Ping statistics for 14.215.177.38:
+            //     Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+            // Approximate round trip times in milli-seconds:
+            //     Minimum = 9ms, Maximum = 11ms, Average = 9ms
             #endregion
 
             #region 情况二
-            //Ping 请求找不到主机 928.929.1.1。请检查该名称，然后重试。
+            //Ping request could not find host www.abc.bili. Please check the name and try again.
             #endregion
 
             #region 情况三
-            //选项 -d 不正确。
-            //选项 -n 的值有错误，有效范围从 1 到 4294967295。
+            //Bad option -c.
+            //Bad value for option -n, valid range is from 1 to 4294967295.
             #endregion
 
             #region 情况四
-            // 正在 Ping 233.233.233.233 具有 32 字节的数据:
-            // 请求超时。
-            // 请求超时。
-            // 请求超时。
-            // 请求超时。
-            // 233.233.233.233 的 Ping 统计信息:
-            // 数据包: 已发送 = 4，已接收 = 0，丢失 = 4 (100% 丢失)，
+            // Pinging 233.233.233.233 with 32 bytes of data:
+            // Request timed out.
+            // Request timed out.
+            // Request timed out.
+            // Request timed out.
+
+            // Ping statistics for 233.233.233.233:
+            //     Packets: Sent = 4, Received = 0, Lost = 4 (100% loss),
             #endregion
 
             #region 情况五
-            //'ping' 不是内部或外部命令
+            //'pingg' is not recognized as an internal or external command,
+            // operable program or batch file.
             #endregion
 
             //0：ip
@@ -65,17 +64,17 @@ namespace ManjuuDomain.Chains
 
             #region 处理情况三，情况五
             //情况三，情况五莫得ip，先判断
-            if (Regex.IsMatch(lines[0], "选项(\\s)+([\\w\\W])+不正确"))
+            if (Regex.IsMatch(lines[0], "Bad(\\s)+option"))
             {
                 extInfo.InfoType = PingResultStatus.ExecuteError;
                 return extInfo;
             }
-            else if (Regex.IsMatch(lines[0], "选项(\\s)+([\\w\\W])+错误"))
+            else if (Regex.IsMatch(lines[0], "Bad(\\s)+([\\w\\W])+option"))
             {
-                extInfo.InfoType = PingResultStatus.ExecuteError;
+                extInfo.InfoType = PingResultStatus.PingNotfound;
                 return extInfo;
             }
-            else if (lines[0].Contains("不是内部或外部命令"))
+            else if (lines[0].Contains("is not recognized as an internal or external command"))
             {
                 extInfo.InfoType = PingResultStatus.PingNotfound;
                 return extInfo;
@@ -83,7 +82,7 @@ namespace ManjuuDomain.Chains
             #endregion
 
             #region 找不到主机
-            if (Regex.IsMatch(lines[0], $"找不到主机(\\s+){extInfo.IpV4}"))
+            if (Regex.IsMatch(lines[0], $"could not find host(\\s+){extInfo.IpV4}"))
             {
                 //访问不到ip地址
                 extInfo.InfoType = PingResultStatus.HostNotfound;
@@ -102,10 +101,12 @@ namespace ManjuuDomain.Chains
             {
                 return ExtractInfo.ZeroInfo;
             }
-
+            
             extInfo.IpV4 = ipMatch.Success?ipMatch.Value:domainMatch.Groups[1].Value;
             extInfo.Port = "80";
             #endregion
+
+
 
             #region 剩下的参数循环解析
             for (int i = 1; i < lines.Length; i++)
@@ -118,13 +119,13 @@ namespace ManjuuDomain.Chains
                 }
 
                 //情况四简单，先处理
-                if ("请求超时。" == currentLine)
+                if ("Request timed out." == currentLine)
                 {
                     //超时只能初步判定为丢包，最后丢包率100%才是超时，无法访问
                     extInfo.InfoType = PingResultStatus.PacketLoss;
                     continue;
                 }
-                else if (currentLine.Contains("数据包"))
+                else if (currentLine.Contains("Packets"))
                 {
                     //数据包: 已发送 = 4，已接收 = 0，丢失 = 4 (100% 丢失)，
                     Match lossRateMatch = Regex.Match(currentLine, "[\\s\\w\\W]+\\(([\\d.]+)%[\\s\\w\\W]+\\)");
@@ -138,16 +139,17 @@ namespace ManjuuDomain.Chains
                         }
 
                         extInfo.LossRate = "100" == lossRate ? 100 : Convert.ToInt32(lossRate);
-                         //如果是最后一行，需要再这里返回，否则出了循环，就会变成了return ExtractInfo.ZeroInfo;
+
+                        //如果是最后一行，需要再这里返回，否则出了循环，就会变成了return ExtractInfo.ZeroInfo;
                         if (i == (lines.Length - 1))
                         {
                             return extInfo;
                         }
                     }
                 }
-                else if (currentLine.Contains("最短 = "))
+                else if (currentLine.Contains("Minimum = "))
                 {
-                    //     最短 = 0ms，最长 = 0ms，平均 = 0ms
+                    //     Minimum = 9ms, Maximum = 11ms, Average = 9ms
                     Match responseTimeMatch = Regex.Match(currentLine, @"[^\d]+=[^\d]+(\d+)ms[,，][^\d]+=[^\d]+(\d+)ms[,，][^\d]+=[^\d]+(\d+)ms");
                     if (!responseTimeMatch.Success)
                     {
@@ -156,11 +158,12 @@ namespace ManjuuDomain.Chains
                         return ExtractInfo.ZeroInfo;
                     }
 
+
                     extInfo.MinTime = Convert.ToInt32(responseTimeMatch.Groups[1].Value);
                     extInfo.Maxtime = Convert.ToInt32(responseTimeMatch.Groups[2].Value);
                     extInfo.AvgTime = Convert.ToInt32(responseTimeMatch.Groups[3].Value);
 
-                     //如果之前没有丢过包，才将他设置为通过
+                    //如果之前没有丢过包，才将他设置为通过
                     if(PingResultStatus.PacketLoss != extInfo.InfoType)
                     {
                         extInfo.InfoType = PingResultStatus.Pass; 
@@ -168,6 +171,7 @@ namespace ManjuuDomain.Chains
                     //todo:获取系统设置的预设超时时间
                     int presetTime = 1000;
                     extInfo.InfoType = extInfo.AvgTime <= presetTime ? extInfo.InfoType : PingResultStatus.Timeout;
+
                     return extInfo;
 
                 }

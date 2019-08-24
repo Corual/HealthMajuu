@@ -15,7 +15,7 @@ namespace ManjuuDomain.ExtractInfos
         public override CheckReesultInfo Convert(ExtractInfo extractInfo)
         {
             //todo:读取预设超时时间
-            int presettime = 0;
+            int presettime = 1000;
             return new CheckReesultInfo(IpV4,Port,Remarks,extractInfo.InfoType,extractInfo.LossRate,presettime,ReceiveTime);
         }
     }

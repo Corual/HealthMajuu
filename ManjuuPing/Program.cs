@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using ManjuuDomain.HealthCheck;
 
 namespace ManjuuPing
@@ -16,13 +17,18 @@ namespace ManjuuPing
 
             //Task pingTask = PingCoreCode();
 
-            new CheckTarget("www.baidu.com", "80", "百度").TryPingAsync();
-            new CheckTarget("www.bilibili.com", "80", "哔哩哔哩").TryPingAsync();
-            new CheckTarget("www.jianshu.com", "80", "简书").TryPingAsync();
+            //new CheckTarget("www.baidu.com", "80", "百度").TryPingAsync();
+            // new CheckTarget("www.bilibili.com", "80", "哔哩哔哩").TryPingAsync();
+            // new CheckTarget("www.jianshu.com", "80", "简书").TryPingAsync();
             new CheckTarget("www.google.com", "80", "谷歌").TryPingAsync();
+
+
             Console.WriteLine("开始工作了");
             Console.ReadKey();
+
         }
+
+
 
         public static async Task PingCoreCode()
         {

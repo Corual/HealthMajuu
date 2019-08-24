@@ -4,7 +4,7 @@ namespace ManjuuDomain.ExtractInfos
 {
     public struct ExtractInfo
     {
-        public static ExtractInfo ZeroInfo { get; private set; } = new ExtractInfo(){InfoType = PingResultStatus.NoneResult};
+        public static ExtractInfo ZeroInfo { get; private set; } = new ExtractInfo(){InfoType = PingResultStatus.NoneResult, IpV4=string.Empty, Port=string.Empty};
 
         /// <summary>
         /// 地址
@@ -55,7 +55,7 @@ namespace ManjuuDomain.ExtractInfos
 
         public override int GetHashCode()
         {
-            return $"{IpV4}{Port}".GetHashCode();
+            return $"{IpV4}{Port}{InfoType}".GetHashCode();
         }
 
 

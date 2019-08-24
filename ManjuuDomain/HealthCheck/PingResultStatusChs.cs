@@ -41,5 +41,10 @@ namespace ManjuuDomain.HealthCheck
         /// NoneResult
         /// </summary>
         没有解析结果,
+
+        /// <summary>
+        /// CanNotAccess
+        /// </summary>
+        无法访问,
     }
 }

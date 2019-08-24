@@ -194,7 +194,11 @@ namespace ManjuuDomain.HealthCheck
             {
                 return $"[{IpAddresV4}]{Remarks}:{(PingResultStatusChs)((int)Status)},具体异常,请查看异常日志";
             }
-            else if (Status == PingResultStatus.PacketLoss)
+            else if (Status == PingResultStatus.HostNotfound)
+            {
+                return $"[{IpAddresV4}]{Remarks}:{(PingResultStatusChs)((int)Status)}";
+            }
+            else if (Status == PingResultStatus.CanNotAccess) 
             {
                 return $"[{IpAddresV4}]{Remarks}:{(PingResultStatusChs)((int)Status)},丢包率 = {LossRate}%";
             }
@@ -212,7 +216,7 @@ namespace ManjuuDomain.HealthCheck
             }
 
 
-            return $"[{IpAddresV4}]{Remarks}:{(PingResultStatusChs)((int)Status)},最短 = {MinResponseTime}ms,最长 = {MaxResponseTime}ms,平均 = {AvgResponseTime}ms,预设超时 = {PresetTimeout}ms";
+            return $"[{IpAddresV4}]{Remarks}:{(PingResultStatusChs)((int)Status)},丢包率 = {LossRate}%,最短 = {MinResponseTime}ms,最长 = {MaxResponseTime}ms,平均 = {AvgResponseTime}ms,预设超时 = {PresetTimeout}ms";
         }
 
         public string GetResultInfoString()

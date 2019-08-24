@@ -51,7 +51,7 @@ namespace ManjuuDomain.HealthCheck
             return Task.Run(async () =>
             {
                 string pingResult = await CheckTargetService.PingRemoteTargetAsync(this);
-                Console.WriteLine($"TryPingAsync=>{this.Remarks}调用结束");
+                Console.WriteLine($"TryPingAsync=>{this.Remarks}调用结束{Environment.NewLine}");
 
                 ////返回空串证明地址ping出了异常
                 //if (string.IsNullOrWhiteSpace(pingResult))
@@ -62,7 +62,7 @@ namespace ManjuuDomain.HealthCheck
 
                 CheckReesultInfo checkReesultInfo = await CheckResultService.UnscramblePingResultAsync(IpAddresV4,TargetPort,Remarks,DateTime.UtcNow,pingResult);
 
-                Console.WriteLine(checkReesultInfo.GetResultInfoString());
+                Console.WriteLine($"{ checkReesultInfo.GetResultInfoString()} { Environment.NewLine}");
 
                 if (PingResultStatus.Pass == checkReesultInfo.Status)
                 {
@@ -71,7 +71,7 @@ namespace ManjuuDomain.HealthCheck
 
                 //todo:将非正常结果推送到消息队列(考虑开发时间问题,目前先直接写入数据库)
 
-                
+                //Console.Clear();
             });
         }
 
