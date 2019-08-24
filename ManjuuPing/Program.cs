@@ -20,7 +20,7 @@ namespace ManjuuPing
             //new CheckTarget("www.baidu.com", "80", "百度").TryPingAsync();
             // new CheckTarget("www.bilibili.com", "80", "哔哩哔哩").TryPingAsync();
             // new CheckTarget("www.jianshu.com", "80", "简书").TryPingAsync();
-            new CheckTarget("www.google.com", "80", "谷歌").TryPingAsync();
+           // new CheckTarget("www.google.com", "80", "谷歌").TryPingAsync();
 
 
             Console.WriteLine("开始工作了");

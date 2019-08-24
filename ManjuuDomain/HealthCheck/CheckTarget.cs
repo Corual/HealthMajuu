@@ -7,7 +7,7 @@ using ManjuuDomain.IDomain;
 using ManjuuDomain.Suppers;
 namespace ManjuuDomain.HealthCheck
 {
-    public class CheckTarget : SupEntity, IPingable
+    public class CheckTarget : SupEntity, IPingable,IAggregateRoot
     {
         #region 属性
         /// <summary>
