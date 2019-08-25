@@ -72,5 +72,20 @@ namespace ManjuuNUnitTest
             Assert.IsTrue(timeMatch.Success);
             Assert.AreEqual("www.a.shifen.com", timeMatch.Groups[1].Value);
         }
+
+        [Test]
+        public void StringHashcode()
+        {
+            string hello_str = "hello";
+            string world_str = "world";
+            string msg = $"{hello_str}{world_str}";
+            string msg2 = hello_str+world_str;
+            string msg3 = new System.Text.StringBuilder().Append(hello_str).Append(world_str).ToString();
+
+
+            Assert.AreEqual("helloworld".GetHashCode(), msg.GetHashCode());
+            Assert.AreEqual(msg2.GetHashCode(), msg.GetHashCode());
+            Assert.AreEqual(msg3.GetHashCode(), msg2.GetHashCode());
+        }
     }
 }

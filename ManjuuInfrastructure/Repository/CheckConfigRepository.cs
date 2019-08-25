@@ -18,5 +18,10 @@ namespace ManjuuInfrastructure.Repository
         {
             throw new System.NotImplementedException();
         }
+
+        public bool UpdateConfigData(CheckConfig config)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

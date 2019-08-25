@@ -20,5 +20,13 @@ namespace ManjuuDomain.IDomain
         /// </summary>
         /// <returns></returns>
         List<CheckConfig> GetValidConfigs();
+
+        /// <summary>
+        /// 更新配置
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        bool UpdateConfigData(CheckConfig config);
+
     }
 }

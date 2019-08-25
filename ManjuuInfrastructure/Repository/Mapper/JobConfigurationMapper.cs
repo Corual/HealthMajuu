@@ -10,7 +10,7 @@ namespace ManjuuInfrastructure.Repository.Mapper
             this.ExecuteBaseMap(builder,"T_JobConfigurations");
 
             builder.Property(p=>p.StartToWrokTime);
-            builder.Property(p=>p.StopToWrokTime);
+            builder.Property(p=>p.StopToWorkTime);
             //没有设置,表示不等待间隔,下一轮直接开始
             builder.Property(p=>p.WorkSpan);
 
