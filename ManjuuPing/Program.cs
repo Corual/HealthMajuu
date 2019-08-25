@@ -5,16 +5,27 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using Autofac;
 using ManjuuDomain.HealthCheck;
+using ManjuuDomain.IDomain;
+
+
 
 namespace ManjuuPing
 {
     class Program
     {
+
+
+        static Program()
+        {
+            InjectConfiguration.DeployAutoFac();
+        }
         static void Main(string[] args)
         {
 
-
+            ICheckConfigRepository CheckConfigRepository = InjectConfiguration.Container.Resolve<ICheckConfigRepository>();
+            System.Console.WriteLine(CheckConfigRepository);
             //Task pingTask = PingCoreCode();
 
             //new CheckTarget("www.baidu.com", "80", "百度").TryPingAsync();
@@ -22,7 +33,7 @@ namespace ManjuuPing
             // new CheckTarget("www.jianshu.com", "80", "简书").TryPingAsync();
            // new CheckTarget("www.google.com", "80", "谷歌").TryPingAsync();
 
-
+            // var taskController = container.Resolve<TaskController>();
             Console.WriteLine("开始工作了");
             Console.ReadKey();
 

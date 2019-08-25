@@ -1,6 +1,6 @@
 namespace ManjuuInfrastructure.Repository.Enum
 {
-    public enum DateState
+    public enum DataState
     {
         Enable,
         Disable,

@@ -30,7 +30,7 @@ namespace ManjuuInfrastructure.Repository.Entity
         /// 数据状态
         /// </summary>
         /// <value></value>
-        public DateState State { get; set; }
+        public DataState State { get; set; }
 
     }
 }

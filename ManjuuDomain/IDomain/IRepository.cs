@@ -1,9 +1,9 @@
 namespace ManjuuDomain.IDomain
 {
     /// <summary>
-    /// 检测目标仓储
+    /// 仓储标识接口
     /// </summary>
-    public interface ICheckTargetRepository:IRepository
+    public interface IRepository
     {
          
     }
