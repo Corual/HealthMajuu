@@ -32,8 +32,8 @@ namespace ManjuuNUnitTest
             });
 
             Assert.IsNotNull(result);
-            Assert.AreEqual(startTime, result.StartToWrokTime.ToString("yyyy-MM-dd HH:mm:ss"));
-            Assert.AreEqual(endTime, result.StopToWorkTime.ToString("yyyy-MM-dd HH:mm:ss"));
+            Assert.AreEqual(startTime, (result.StartToWrokTime ?? DateTime.MinValue).ToString("yyyy-MM-dd HH:mm:ss"));
+            Assert.AreEqual(endTime, (result.StopToWorkTime ?? DateTime.MaxValue).ToString("yyyy-MM-dd HH:mm:ss"));
             Assert.AreEqual(3000, result.WorkSpan);
             Assert.AreEqual(1000, result.PresetTimeout);
             Assert.AreEqual(4, result.PingSendCount);

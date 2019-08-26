@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ManjuuDomain.Dto;
 using ManjuuDomain.HealthCheck;
 
 namespace ManjuuDomain.IDomain
@@ -20,7 +21,7 @@ namespace ManjuuDomain.IDomain
         /// 获取所有可用配置
         /// </summary>
         /// <returns></returns>
-        Task<List<CheckConfig>> GetValidConfigsAsync();
+        Task<List<ToolConfigDto>> GetValidConfigsAsync();
 
         /// <summary>
         /// 更新配置

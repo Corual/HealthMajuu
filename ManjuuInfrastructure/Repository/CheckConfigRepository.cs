@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using ManjuuDomain.Dto;
 using ManjuuDomain.HealthCheck;
 using ManjuuDomain.IDomain;
 using ManjuuInfrastructure.Repository.Context;
@@ -53,23 +54,23 @@ namespace ManjuuInfrastructure.Repository
             return count > 0;
         }
 
-        public async Task<List<CheckConfig>> GetValidConfigsAsync()
+        public async Task<List<ToolConfigDto>> GetValidConfigsAsync()
         {
             try
             {
                 using (HealthManjuuCoreContext context = new HealthManjuuCoreContext())
                 {
 
-                    context.JobConfigurations.Add(new JobConfiguration() {PingSendCount=4, PresetTimeout=1000, StartToWrokTime=DateTime.UtcNow, StopToWorkTime= DateTime.UtcNow.AddHours(6), WorkSpan = 4000 });
-                    await context.SaveChangesAsync();
+                    //context.JobConfigurations.Add(new JobConfiguration() {PingSendCount=4, PresetTimeout=1000, StartToWrokTime=DateTime.UtcNow, StopToWorkTime= DateTime.UtcNow.AddHours(6), WorkSpan = 4000 });
+                    //await context.SaveChangesAsync();
 
                     var query = context.JobConfigurations.Where(p => p.State != DataState.Disable).AsNoTracking();
                     if (! await query.AnyAsync())
                     {
-                        return new List<CheckConfig>();
+                        return null;
                     }
 
-                    return await query.ProjectTo<CheckConfig>(_mapperCfg).ToListAsync();
+                    return await query.ProjectTo<ToolConfigDto>(_mapperCfg).ToListAsync();
 
                 }
             }
@@ -77,7 +78,7 @@ namespace ManjuuInfrastructure.Repository
             {
                 System.Console.WriteLine(ex.Message);
                 //todo:日志记录异常
-                return new List<CheckConfig>();
+                return null;
             }
         }
 

@@ -10,13 +10,13 @@ namespace ManjuuDomain.HealthCheck
         /// 开始工作时间
         /// </summary>
         /// <value></value>
-        public DateTime StartToWrokTime { get; private set; }
+        public DateTime? StartToWrokTime { get; private set; }
 
         /// <summary>
         /// 停止工作时间
         /// </summary>
         /// <value></value>
-        public DateTime StopToWorkTime { get; private set; }
+        public DateTime? StopToWorkTime { get; private set; }
 
         /// <summary>
         ///每轮工作间隔时间，单位秒
@@ -36,10 +36,7 @@ namespace ManjuuDomain.HealthCheck
         /// <value></value>
         public int PingSendCount { get; private set; }
 
-        //public CheckConfig()
-        //{
 
-        //}
         public CheckConfig(int id, DateTime startToWork, DateTime endToWork, int? workSpan, int presetTimeout, int pingSendCount)
         {
             this.Id = id;

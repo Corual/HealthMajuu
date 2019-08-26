@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ManjuuDomain.Dto;
 using ManjuuDomain.HealthCheck;
 using ManjuuDomain.IDomain;
 using Microsoft.AspNetCore.Mvc;
@@ -18,8 +19,19 @@ namespace ManjuuManagement.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            List<CheckConfig> list = await  CheckConfigRepository.GetValidConfigsAsync();
-            return View();
+            List<ToolConfigDto> list = await CheckConfigRepository.GetValidConfigsAsync();
+            return View(list);
+        }
+
+        [HttpPost]
+        public IActionResult Add(ToolConfigDto newConfiguration)
+        {
+            if (null == newConfiguration)
+            {
+
+            }
+            
+            return null;
         }
     }
 }
