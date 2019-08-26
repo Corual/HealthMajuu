@@ -1,6 +1,10 @@
+using System;
 using System.Reflection;
 using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using ManjuuDomain.IDomain;
+using NLog;
+using NLog.Extensions.Logging;
 
 namespace ManjuuPing
 {
@@ -24,14 +28,11 @@ namespace ManjuuPing
             .Where(p => !p.IsAbstract && typeof(IRepository).IsAssignableFrom(p))
             .AsImplementedInterfaces().PropertiesAutowired().SingleInstance();
 
-            //  builder.RegisterAssemblyTypes(Assembly.Load("ManjuuDomain"),Assembly.Load("ManjuuInfrastructure"))
-            // .Where(p => !p.IsAbstract && typeof(ICheckTargetRepository).IsAssignableFrom(p))
-            // .AsImplementedInterfaces().PropertiesAutowired().SingleInstance();
 
-            //获取容器
-            Container = builder.Build();
-
+                Container = builder.Build();
 
         }
+
+
     }
 }

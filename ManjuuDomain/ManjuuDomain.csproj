@@ -14,4 +14,8 @@
     <Folder Include="Chains\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ManjuuCommon\ManjuuCommon.csproj" />
+  </ItemGroup>
+
 </Project>

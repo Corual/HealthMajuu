@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using ManjuuDomain.IDomain;
 using ManjuuDomain.PingCommands;
 using ManjuuDomain.Suppers;
-using ManjuuDomain.Tools;
+using ManjuuCommon.Tools;
 
 namespace ManjuuDomain.HealthCheckService
 {

@@ -1,4 +1,4 @@
-namespace ManjuuDomain.Tools
+namespace ManjuuCommon.Tools
 {
     /// <summary>
     /// 常用正则表达式

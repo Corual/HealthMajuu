@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 using ManjuuDomain.ExtractInfos;
 using ManjuuDomain.HealthCheck;
 using ManjuuDomain.IDomain;
-using ManjuuDomain.Tools;
+using ManjuuCommon.Tools;
 
 namespace ManjuuDomain.Chains
 {

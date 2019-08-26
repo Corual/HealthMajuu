@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManjuuNUnitTest", "ManjuuNU
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManjuuManagement", "ManjuuManagement\ManjuuManagement.csproj", "{5A5503E9-5309-4B61-80C8-458B4C5F5C28}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManjuuCommon", "ManjuuCommon\ManjuuCommon.csproj", "{5D6383EA-F683-44A8-B573-DF9BFA122198}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{5A5503E9-5309-4B61-80C8-458B4C5F5C28}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A5503E9-5309-4B61-80C8-458B4C5F5C28}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A5503E9-5309-4B61-80C8-458B4C5F5C28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D6383EA-F683-44A8-B573-DF9BFA122198}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D6383EA-F683-44A8-B573-DF9BFA122198}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D6383EA-F683-44A8-B573-DF9BFA122198}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D6383EA-F683-44A8-B573-DF9BFA122198}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

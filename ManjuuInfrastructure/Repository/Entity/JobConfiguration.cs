@@ -1,9 +1,7 @@
 using System;
 
-namespace ManjuuInfrastructure.Repository.Entity
-{
-    public class JobConfiguration : BaseEntity
-    {
+namespace ManjuuInfrastructure.Repository.Entity {
+    public class JobConfiguration : BaseEntity {
         /// <summary>
         /// 开始工作时间
         /// </summary>

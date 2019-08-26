@@ -8,24 +8,28 @@ using System.Timers;
 using Autofac;
 using ManjuuDomain.HealthCheck;
 using ManjuuDomain.IDomain;
-
-
+using NLog;
 
 namespace ManjuuPing
 {
     class Program
     {
 
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
+        public static ILogger _logger { get; set; }
         static Program()
         {
             InjectConfiguration.DeployAutoFac();
         }
         static void Main(string[] args)
         {
+            // _logger =  InjectConfiguration.Container.Resolve<ILogger>();
+            // _logger.Info("Hello world logger");
 
-            ICheckConfigRepository CheckConfigRepository = InjectConfiguration.Container.Resolve<ICheckConfigRepository>();
-            System.Console.WriteLine(CheckConfigRepository);
+
+            // ICheckConfigRepository CheckConfigRepository = InjectConfiguration.Container.Resolve<ICheckConfigRepository>();
+            // System.Console.WriteLine(CheckConfigRepository);
             //Task pingTask = PingCoreCode();
 
             //new CheckTarget("www.baidu.com", "80", "百度").TryPingAsync();

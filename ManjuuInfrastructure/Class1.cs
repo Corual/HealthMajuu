@@ -1,9 +1,7 @@
-﻿using System;
+using System;
 
-namespace ManjuuInfrastructure
-{
-    public class Class1
-    {
+namespace ManjuuInfrastructure {
+    public class Class1 {
 
     }
 }

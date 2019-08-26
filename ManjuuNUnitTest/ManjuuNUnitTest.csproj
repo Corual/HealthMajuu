@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ManjuuCommon\ManjuuCommon.csproj" />
     <ProjectReference Include="..\ManjuuDomain\ManjuuDomain.csproj" />
     <ProjectReference Include="..\ManjuuInfrastructure\ManjuuInfrastructure.csproj" />
   </ItemGroup>

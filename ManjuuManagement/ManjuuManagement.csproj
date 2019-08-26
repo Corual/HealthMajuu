@@ -9,11 +9,14 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
   </ItemGroup>
 
 
   <ItemGroup>
     <ProjectReference Include="..\ManjuuApplications\ManjuuApplications.csproj" />
+    <ProjectReference Include="..\ManjuuCommon\ManjuuCommon.csproj" />
+    <ProjectReference Include="..\ManjuuDomain\ManjuuDomain.csproj" />
     <ProjectReference Include="..\ManjuuInfrastructure\ManjuuInfrastructure.csproj" />
   </ItemGroup>
 

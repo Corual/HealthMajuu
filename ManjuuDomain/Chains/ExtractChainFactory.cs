@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 using ManjuuDomain.IDomain;
-using ManjuuDomain.Tools;
+using ManjuuCommon.Tools;
 
 namespace ManjuuDomain.Chains
 {

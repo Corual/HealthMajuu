@@ -1,61 +1,50 @@
 using System;
-using System.Reflection;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using AutoMapper;
 
-namespace ManjuuInfrastructure.Repository.Mapper.Auto
-{
-    public class EntityAutoMapper
-    {
-        public static EntityAutoMapper Instance{get; private set;} = new EntityAutoMapper();
+namespace ManjuuInfrastructure.Repository.Mapper.Auto {
+    public class EntityAutoMapper {
+        public static EntityAutoMapper Instance { get; private set; } = new EntityAutoMapper ();
 
         private IEnumerable<Type> AutoMapperableTypes = null;
-        static EntityAutoMapper()
-        {
-            Instance.GetAutoMapperTypes();
+        static EntityAutoMapper () {
+            Instance.GetAutoMapperTypes ();
         }
-        private EntityAutoMapper() { }
+        private EntityAutoMapper () { }
 
-
-
-        private void GetAutoMapperTypes()
-        {
+        private void GetAutoMapperTypes () {
             //获取类型信息
-            Type entityAutoMapperType = this.GetType();
-            TypeInfo typeInfo = entityAutoMapperType.GetTypeInfo();
+            Type entityAutoMapperType = this.GetType ();
+            TypeInfo typeInfo = entityAutoMapperType.GetTypeInfo ();
 
             //根据类型获取程序集信息
             Assembly packageAssembly = typeInfo.Assembly;
 
             //获取实现了IAutoMapperable的类型
-            this.AutoMapperableTypes = packageAssembly.GetTypes()
-           .Where(p => (!p.IsAbstract) && typeof(IAutoMapperable).IsAssignableFrom(p));
-
+            this.AutoMapperableTypes = packageAssembly.GetTypes ()
+                .Where (p => (!p.IsAbstract) && typeof (IAutoMapperable).IsAssignableFrom (p));
 
         }
-        public MapperConfiguration AutoMapperConfig(string entityType)
-        {
+        public MapperConfiguration AutoMapperConfig (string entityType) {
 
-            if ((null == this.AutoMapperableTypes) || (!this.AutoMapperableTypes.Any()))
-            {
+            if ((null == this.AutoMapperableTypes) || (!this.AutoMapperableTypes.Any ())) {
                 return null;
             }
 
-            Type currentType = this.AutoMapperableTypes.Where(p => p.Name == $"{entityType}AutoMapper").FirstOrDefault();
+            Type currentType = this.AutoMapperableTypes.Where (p => p.Name == $"{entityType}AutoMapper").FirstOrDefault ();
 
-            if (null == currentType)
-            {
+            if (null == currentType) {
                 return null;
             }
 
-            ConstructorInfo currentConstructorInfo = currentType.GetConstructor(Array.Empty<Type>());
-            if (null == currentConstructorInfo)
-            {
+            ConstructorInfo currentConstructorInfo = currentType.GetConstructor (Array.Empty<Type> ());
+            if (null == currentConstructorInfo) {
                 return null;
             }
 
-            return (currentConstructorInfo.Invoke(Array.Empty<object>()) as IAutoMapperable).MapperInitialize();
+            return (currentConstructorInfo.Invoke (Array.Empty<object> ()) as IAutoMapperable).MapperInitialize ();
 
             // ConstructorInfo currentConstructorInfo = null;
             // foreach (var item in this.AutoMapperableTypes)
@@ -73,27 +62,23 @@ namespace ManjuuInfrastructure.Repository.Mapper.Auto
 
         }
 
-        public IMapper GetMapper(MapperConfiguration cfg)
-        {
-                if(null == cfg)
-                {
-                    return null;
-                }
-
-                return cfg.CreateMapper();
-        }
-
-        public T GetMapperResult<T>(MapperConfiguration cfg, object source)
-        where T:class
-        {
-            IMapper mapper = this.GetMapper(cfg);
-
-            if(null == mapper)
-            {
+        public IMapper GetMapper (MapperConfiguration cfg) {
+            if (null == cfg) {
                 return null;
             }
 
-           return mapper.Map<T>(source);
+            return cfg.CreateMapper ();
+        }
+
+        public T GetMapperResult<T> (MapperConfiguration cfg, object source)
+        where T : class {
+            IMapper mapper = this.GetMapper (cfg);
+
+            if (null == mapper) {
+                return null;
+            }
+
+            return mapper.Map<T> (source);
         }
     }
 }

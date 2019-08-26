@@ -1,5 +1,5 @@
 using System.Text.RegularExpressions;
-using ManjuuDomain.Tools;
+using ManjuuCommon.Tools;
 using NUnit.Framework;
 
 namespace ManjuuNUnitTest

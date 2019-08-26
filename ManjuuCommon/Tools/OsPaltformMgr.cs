@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace ManjuuDomain.Tools
+namespace ManjuuCommon.Tools
 {
     public class OsPaltformMgr
     {
