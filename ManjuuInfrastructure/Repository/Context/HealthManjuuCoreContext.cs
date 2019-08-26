@@ -9,19 +9,32 @@ using Microsoft.EntityFrameworkCore;
 // 在上一个操作完成之前, 在此上下文上启动的第二个操作。 这通常是由使用同一个 DbContext 实例的不同线程引起的, 但不保证实例成员是线程安全的。
 
 namespace ManjuuInfrastructure.Repository.Context {
-    public class HealthManjuuCoreContext : DbContext {
+    public class HealthManjuuCoreContext : DbContext
+    {
         public DbSet<JobConfiguration> JobConfigurations { get; set; }
 
-        protected override void OnConfiguring (DbContextOptionsBuilder optionsBuilder) {
-            optionsBuilder.UseSqlite (@"Data Source=HealthManjuuCore.db");
-            //官方原话：应用程序不应为每个上下文实例创建新的 ILoggerFactory 实例，这一点非常重要。 这样做会导致内存泄漏和性能下降。
-            //所以在别的地方单例一个再放进来
-            optionsBuilder.UseLoggerFactory (EFCoreConsoleLogFactory.FactoryInstance);
+        public HealthManjuuCoreContext()
+        {
 
-            bool created = Database.EnsureCreated ();
-            if (created) {
-                System.Console.WriteLine ("HealthManjuuCore数据库创建完毕！");
+        }
+
+
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (optionsBuilder.IsConfigured)
+            {
+                return;
             }
+
+            //optionsBuilder.UseLoggerFactory(new EFCoreConsoleLogFactory().FactoryInstance);
+            optionsBuilder.UseSqlite(@"Filename=../HealthManjuuCore.db");
+
+
+            
+
+
+
 
         }
 

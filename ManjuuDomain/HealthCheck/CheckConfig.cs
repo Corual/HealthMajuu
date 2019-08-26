@@ -36,7 +36,10 @@ namespace ManjuuDomain.HealthCheck
         /// <value></value>
         public int PingSendCount { get; private set; }
 
+        //public CheckConfig()
+        //{
 
+        //}
         public CheckConfig(int id, DateTime startToWork, DateTime endToWork, int? workSpan, int presetTimeout, int pingSendCount)
         {
             this.Id = id;
@@ -45,6 +48,6 @@ namespace ManjuuDomain.HealthCheck
             this.WorkSpan = workSpan;
             this.PresetTimeout = presetTimeout;
             this.PingSendCount = pingSendCount;
-        } 
+        }
     }
 }

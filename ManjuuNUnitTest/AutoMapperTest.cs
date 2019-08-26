@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using AutoMapper;
 using ManjuuDomain.HealthCheck;
+using ManjuuDomain.IDomain;
+using ManjuuInfrastructure.Repository;
 using ManjuuInfrastructure.Repository.Entity;
 using ManjuuInfrastructure.Repository.Mapper.Auto;
 using NUnit.Framework;
@@ -35,5 +39,18 @@ namespace ManjuuNUnitTest
             Assert.AreEqual(4, result.PingSendCount);
 
         }
+
+        [Test]
+        public  async Task EfMapper()
+        {
+            ICheckConfigRepository repository = new CheckConfigRepository();
+
+            var list =  await repository.GetValidConfigsAsync();
+
+            Assert.IsNotNull(list);
+
+        }
+
+
     }
 }

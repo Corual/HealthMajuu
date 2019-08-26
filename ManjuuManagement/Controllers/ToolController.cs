@@ -10,11 +10,16 @@ namespace ManjuuManagement.Controllers
 {
     public class ToolController : Controller
     {
-        public ICheckConfigRepository CheckConfigRepository { get; set; }
+        private ICheckConfigRepository CheckConfigRepository;
+
+        public ToolController(ICheckConfigRepository checkConfigRepository)
+        {
+            CheckConfigRepository = checkConfigRepository;
+        }
         public async Task<IActionResult> Index()
         {
-             List<CheckConfig> list =  await CheckConfigRepository.GetValidConfigsAsync();
-            return View(list);
+            List<CheckConfig> list = await  CheckConfigRepository.GetValidConfigsAsync();
+            return View();
         }
     }
 }
