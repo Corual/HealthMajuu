@@ -201,12 +201,17 @@
         </div>
     </div>
     @*id在这里*@
-    <input type="hidden" id="Id" name="Id" value="" />
+    @if(null != Model){
+        <input type="hidden" id="Id" name="Id" value="" />
+    }
 </div>
 
 @section Scripts{
-    <script src="~/js/jHsDate.js"></script>
+    <script src="~/js/jHsDate.js"></script>   
+    <script src="~/js/axios.min.js"></script>
     <script src="~/js/tool_index.js"></script>
+    
+    
 }
 
 

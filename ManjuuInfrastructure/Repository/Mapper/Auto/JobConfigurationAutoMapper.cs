@@ -10,6 +10,7 @@ namespace ManjuuInfrastructure.Repository.Mapper.Auto {
             return new MapperConfiguration (cfg => {
                 cfg.CreateMap<JobConfiguration, CheckConfig> ();
                 cfg.CreateMap<JobConfiguration, ToolConfigDto> ();
+                //cfg.CreateMap<ToolConfigDto, JobConfiguration> ();
                 //cfg.CreateMap<List<JobConfiguration>, List<CheckConfig>>();
             });
 

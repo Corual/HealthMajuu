@@ -2,9 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using ManjuuApplications;
+using ManjuuCommon.DataPackages;
 using ManjuuDomain.Dto;
 using ManjuuDomain.HealthCheck;
 using ManjuuDomain.IDomain;
+using ManjuuInfrastructure.Repository.Entity;
+using ManjuuInfrastructure.Repository.Mapper.Auto;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ManjuuManagement.Controllers
@@ -24,14 +29,11 @@ namespace ManjuuManagement.Controllers
         }
 
         [HttpPost]
-        public IActionResult Add(ToolConfigDto newConfiguration)
+        public async Task<IActionResult> Add(ToolConfigDto newConfiguration)
         {
-            if (null == newConfiguration)
-            {
-
-            }
+            var application = new ToolConfigutaionApplication(CheckConfigRepository);
             
-            return null;
+            return Json(await application.UserAddConfigurationToToolAsync(newConfiguration));
         }
     }
 }

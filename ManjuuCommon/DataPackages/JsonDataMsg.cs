@@ -11,6 +11,17 @@ namespace ManjuuCommon.DataPackages
         /// </summary>
         public T ResponseData { get; set; }
 
+        public JsonDataMsg()
+        {
+            
+        }
+
+        public JsonDataMsg(T data, bool success, string msg)
+        {
+            this.ResponseData = data;
+            this.BusinessResult = success;
+            this.Msg = msg;
+        }
    
     }
 }

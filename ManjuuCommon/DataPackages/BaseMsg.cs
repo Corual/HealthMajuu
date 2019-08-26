@@ -12,8 +12,8 @@ namespace ManjuuCommon.DataPackages
         public bool BusinessResult { get; set; }
 
         /// <summary>
-        /// 失败消息
+        /// 消息
         /// </summary>
-        public string FailMsg { get; set; }
+        public string Msg { get; set; }
     }
 }
