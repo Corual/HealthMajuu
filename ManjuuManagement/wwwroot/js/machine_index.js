@@ -96,13 +96,73 @@ $(function () {
 
     var importDataButton = $('#import');
     var exportDataButton = $('#export');
+    var exlFile = $('#exlFile');
+    var importLoader = null;
+
+    exlFile.change(function (e) {
+        //console.log(e);
+        console.log(this.files);
+
+        if (this.files.length <1)
+        {
+            
+            importLoader.stop();
+            exportDataButton.removeAttr('disabled');
+            importDataButton.removeAttr('disabled');
+            return;
+        }
+
+        var fileName = this.files[0].name;
+        var index = fileName.lastIndexOf(".");
+        var suffix = fileName.substring(index + 1);
+        var suffixCollection = ['xlsx'];//['xls', 'xlsx', 'csv'];
+        if (suffixCollection.indexOf(suffix) == -1)
+        {
+            //notify('你上传的不是Excel文件', 'error');
+            notify('你上传的不是*.xlsx后缀的l文件', 'error');
+            importLoader.stop();
+            exportDataButton.removeAttr('disabled');
+            importDataButton.removeAttr('disabled');
+            return;
+        }
+
+        var fd = new FormData();
+        fd.append('file', this.files[0]);
+        //console.log(fd.get('file'))
+
+        axios({
+            method: 'post',
+            url: '/Machine/Import',
+            headers: { 'Content-Type': 'multipart/form-data' },
+            data:fd
+        })
+            .then(function (response) {
+                importLoader.stop();
+                exportDataButton.removeAttr('disabled');
+                importDataButton.removeAttr('disabled');
+                var serverData = response.data;
+
+                serverData.businessResult ?
+                    notify(serverData.msg, 'success', function () { location.reload(); }) :
+                    notify(serverData.msg, 'error');
+
+            })
+            .catch(function (error) {
+                importLoader.stop();
+                exportDataButton.removeAttr('disabled');
+                importDataButton.removeAttr('disabled');
+                notify(error, 'warning');
+            });
+
+        return;
+    });
 
     importDataButton.click(function () {
         exportDataButton.attr('disabled', 'disabled');
         var THIS = $(this);
-        var loader = getLoding(this);
-        loader.start();
-
+        importLoader = getLoding(this);
+        importLoader.start();
+        exlFile.click();
 
     });
 
@@ -111,5 +171,21 @@ $(function () {
         var THIS = $(this);
         var loader = getLoding(this);
         loader.start();
+
+        axios.post('/Machine/Export', {} )
+            .then(function (response) {
+                loader.stop();
+                THIS.removeAttr('disabled');
+                var serverData = response.data;
+                serverData.businessResult ?
+                    notify(serverData.msg, 'success', function () { location.reload(); }) :
+                    notify(serverData.msg, 'error');
+            })
+            .catch(function (error) {
+                loader.stop();
+                THIS.removeAttr('disabled');
+                notify(error, 'warning');
+            });
+
     });
 });

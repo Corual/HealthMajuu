@@ -1,10 +1,12 @@
 ﻿using ManjuuCommon.DataPackages;
+using ManjuuCommon.Tools;
 using ManjuuDomain.Dto;
 using ManjuuDomain.IDomain;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,18 +20,17 @@ namespace ManjuuApplications
             Repository = repository;
         }
 
-        public async Task<PageMsg<EquipmentDto>> PaggingMachinesAsync(int current)
+        public async Task<PageMsg<EquipmentDto>> PaggingMachinesAsync(int current, int capacity = 20)
         {
             if (current < 1)
             {
                 current = 1;
             }
 
-            int capacity = 20; //每页20条
             DataBoxDto<EquipmentDto> dataBoxDto = await Repository.QuantitativeTargetsAsync(current, capacity);
             if (0 == dataBoxDto.Total)
             {
-                return new PageMsg<EquipmentDto>() { Msg="获取数据异常或者没数据", BusinessResult=false};
+                return new PageMsg<EquipmentDto>() { Msg = "获取数据异常或者没数据", BusinessResult = false };
             }
 
             PageMsg<EquipmentDto> pageMsg = new PageMsg<EquipmentDto>(dataBoxDto.Data, current, dataBoxDto.Total, capacity);
@@ -38,68 +39,87 @@ namespace ManjuuApplications
             return pageMsg;
         }
 
-        public async Task<PageMsg<string>> ImportingMachinesAsync(IFormFile formFile)
+        public async Task<JsonDataMsg<string>> ImportingMachinesAsync(IFormCollection formCollection)
         {
-            #region IFormFile
-            //public interface IFormFile
+
+            if (null == formCollection || null == formCollection.Files || !formCollection.Files.Any())
+            {
+                return new JsonDataMsg<string>(null, false, "服务器接收不到文件");
+            }
+
+            IFormFile file = formCollection.Files[0];
+
+            string extension = Path.GetExtension(file.FileName);
+
+            //var fileExtensions = new string[] { ".xlsx", ".xls", ".csv" };
+            //if (!fileExtensions.Contains(extension))
             //{
-            //    //
-            //    // 摘要:
-            //    //     Gets the raw Content-Type header of the uploaded file.
-            //    string ContentType { get; }
-            //    //
-            //    // 摘要:
-            //    //     Gets the raw Content-Disposition header of the uploaded file.
-            //    string ContentDisposition { get; }
-            //    //
-            //    // 摘要:
-            //    //     Gets the header dictionary of the uploaded file.
-            //    IHeaderDictionary Headers { get; }
-            //    //
-            //    // 摘要:
-            //    //     Gets the file length in bytes.
-            //    long Length { get; }
-            //    //
-            //    // 摘要:
-            //    //     Gets the form field name from the Content-Disposition header.
-            //    string Name { get; }
-            //    //
-            //    // 摘要:
-            //    //     Gets the file name from the Content-Disposition header.
-            //    string FileName { get; }
-
-            //    //
-            //    // 摘要:
-            //    //     Copies the contents of the uploaded file to the target stream.
-            //    //
-            //    // 参数:
-            //    //   target:
-            //    //     The stream to copy the file contents to.
-            //    void CopyTo(Stream target);
-            //    //
-            //    // 摘要:
-            //    //     Asynchronously copies the contents of the uploaded file to the target stream.
-            //    //
-            //    // 参数:
-            //    //   target:
-            //    //     The stream to copy the file contents to.
-            //    //
-            //    //   cancellationToken:
-            //    Task CopyToAsync(Stream target, CancellationToken cancellationToken = default);
-            //    //
-            //    // 摘要:
-            //    //     Opens the request stream for reading the uploaded file.
-            //    Stream OpenReadStream();
+            //    return new JsonDataMsg<string>(null, false, "您上传的文件不是Excel文件");
             //}
-            #endregion
 
+            if (".xlsx" != extension)
+            {
+                return new JsonDataMsg<string>(null, false, "您上传的文件不是*.xlsx后缀的文件");
+            }
 
+            //todo:导入前通知工具退出
 
-            return null;
+            //todo:解析文件，得到List<EquipmentDto> 设备列表
+            List<EquipmentDto> list = ExcelOptr.ResolveExcelFile<EquipmentDto>();
+
+            bool success = await  Repository.ReplaceTargetsAsync(list);
+
+            JsonDataMsg<string> result = null;
+            if (success)
+            {
+                result = new JsonDataMsg<string>(null, success, "设备导入完毕");
+            }
+            else
+            {
+                result = new JsonDataMsg<string>(null, success, "导入设备操作过程发生异常");
+            }
+
+            //todo:导入后重新执行工具
+
+            return result;
         }
 
-        public async Task<PageMsg<string>> ExportMachinesAsync()
+        public async Task<JsonDataMsg<string>> ExportMachinesAsync()
         {
+            //先尝试获取100条数据
+            int current = 1;
+            int capacity = 100;
+            DataBoxDto<EquipmentDto> dataBoxDto = await Repository.QuantitativeTargetsAsync(current, capacity);
+            if (0 == dataBoxDto.Total)
+            {
+                //如果没有数据，则导出一个空的Excel模板文件，并返回
+                return null;
+            }
+
+            //有数据则根据数据，得到总分页数，便于后续遍历
+            var totalPage = (int)Math.Ceiling(dataBoxDto.Total * 1.0 / capacity);
+            List<EquipmentDto> eqList = new List<EquipmentDto>(dataBoxDto.Data);
+            if (totalPage > current)
+            {
+                //还需要获取后面分页的数据
+                while (++current <= totalPage) 
+                {
+                    dataBoxDto = await Repository.QuantitativeTargetsAsync(current, capacity);
+                    if ((null == dataBoxDto.Data || !dataBoxDto.Data.Any()) && (current <= totalPage))
+                    {
+                        return new JsonDataMsg<string>(null, false, $"导出第{current}页数据的时候出错了");
+                    }
+
+                    if (null != dataBoxDto.Data && dataBoxDto.Data.Any())
+                    {
+                        eqList.AddRange(dataBoxDto.Data);
+                    }
+                }
+
+            }
+
+            //取完剩余的分页数据，则可以开始生成Excel文件
+            //todo:生成Excel文件
 
             return null;
         }

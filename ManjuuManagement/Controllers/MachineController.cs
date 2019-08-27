@@ -37,12 +37,13 @@ namespace ManjuuManagement.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Import(IFormFile formFile)
+        public async Task<IActionResult> Import(IFormCollection  formCollection)
         {
+            //用axios库，不能用IFormFile接收，改用IFormCollection
 
             MachineApplication application = new MachineApplication(Repository);
 
-            return Json(await application.ImportingMachinesAsync(formFile));
+            return Json(await application.ImportingMachinesAsync(formCollection));
         }
 
 
