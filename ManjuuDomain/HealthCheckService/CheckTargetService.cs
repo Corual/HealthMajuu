@@ -61,7 +61,7 @@ namespace ManjuuDomain.HealthCheckService
                     using (StreamReader reader = process.StandardOutput)
                     {
                         result = await reader.ReadToEndAsync();
-                        System.Console.WriteLine($"{target.Remarks}执行完成===={DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss:ffff")}===={Environment.NewLine}");
+                        System.Console.WriteLine($"{target.Remarks}执行完成===={TimeMgr.GetLoaclDateTime().ToString("yyyy-MM-dd HH:mm:ss:ffff")}===={Environment.NewLine}");
                         Console.WriteLine(result);
                     }
 

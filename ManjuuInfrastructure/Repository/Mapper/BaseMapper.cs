@@ -1,4 +1,6 @@
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using ManjuuCommon.Tools;
 using ManjuuInfrastructure.Repository.Entity;
 using ManjuuInfrastructure.Repository.Enum;
 using Microsoft.EntityFrameworkCore;
@@ -26,11 +28,11 @@ namespace ManjuuInfrastructure.Repository.Mapper {
                 #endregion
 
                 #region 数据创建时间配置 (需要去数据可配置默认值“getdate ()”)
-                builder.Property (p => p.CreateTime).HasDefaultValueSql ("getdate()").IsRequired ();
+                builder.Property (p => p.CreateTime).HasDefaultValue(TimeMgr.GetLoaclDateTime()).ValueGeneratedOnAdd().IsRequired ();
                 #endregion
 
                 #region 数据最后更新时间配置
-                builder.Property (p => p.LastUpdateTime).ValueGeneratedOnAddOrUpdate ().IsRequired ();
+                builder.Property (p => p.LastUpdateTime).HasDefaultValue(TimeMgr.GetLoaclDateTime()).ValueGeneratedOnAddOrUpdate().IsRequired ();
                 #endregion
 
             }

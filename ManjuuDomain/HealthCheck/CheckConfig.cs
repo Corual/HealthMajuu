@@ -37,11 +37,11 @@ namespace ManjuuDomain.HealthCheck
         public int PingSendCount { get; private set; }
 
 
-        public CheckConfig(int id, DateTime startToWork, DateTime endToWork, int? workSpan, int presetTimeout, int pingSendCount)
+        public CheckConfig(int id, DateTime? startToWork, DateTime? endToWork, int? workSpan, int presetTimeout, int pingSendCount)
         {
             this.Id = id;
             this.StartToWrokTime = startToWork;
-            this.StartToWrokTime = endToWork;
+            this.StopToWorkTime = endToWork;
             this.WorkSpan = workSpan;
             this.PresetTimeout = presetTimeout;
             this.PingSendCount = pingSendCount;

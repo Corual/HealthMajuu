@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ManjuuInfrastructure.Migrations
 {
     [DbContext(typeof(HealthManjuuCoreContext))]
-    [Migration("20190826125610_HealthManjuuCore")]
+    [Migration("20190827023412_HealthManjuuCore")]
     partial class HealthManjuuCore
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,11 +31,11 @@ namespace ManjuuInfrastructure.Migrations
 
                     b.Property<int>("PresetTimeout");
 
-                    b.Property<DateTime>("StartToWrokTime");
+                    b.Property<DateTime?>("StartToWrokTime");
 
                     b.Property<int>("State");
 
-                    b.Property<DateTime>("StopToWorkTime");
+                    b.Property<DateTime?>("StopToWorkTime");
 
                     b.Property<int?>("WorkSpan");
 

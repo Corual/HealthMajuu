@@ -25,15 +25,29 @@ namespace ManjuuManagement.Controllers
         public async Task<IActionResult> Index()
         {
             List<ToolConfigDto> list = await CheckConfigRepository.GetValidConfigsAsync();
-            return View(list);
+            ToolConfigDto result = null;
+            if (list != null && list.Any())
+            {
+                result = list[0];
+            }
+            return View(result);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(ToolConfigDto newConfiguration)
+        public async Task<IActionResult> Add([FromBody] ToolConfigDto newConfiguration)
         {
             var application = new ToolConfigutaionApplication(CheckConfigRepository);
             
             return Json(await application.UserAddConfigurationToToolAsync(newConfiguration));
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Update([FromBody] ToolConfigDto newConfiguration)
+        {
+            var application = new ToolConfigutaionApplication(CheckConfigRepository);
+
+            return Json(await application.UserAlterConfigurationToToolAsync(newConfiguration));
+        }
+
     }
 }

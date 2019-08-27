@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using ManjuuCommon.Tools;
 using ManjuuDomain.HealthCheckService;
 using ManjuuDomain.IDomain;
 using ManjuuDomain.Suppers;
@@ -60,7 +61,7 @@ namespace ManjuuDomain.HealthCheck
                 //    return;
                 //}
 
-                CheckReesultInfo checkReesultInfo = await CheckResultService.UnscramblePingResultAsync(IpAddresV4,TargetPort,Remarks,DateTime.UtcNow,pingResult);
+                CheckReesultInfo checkReesultInfo = await CheckResultService.UnscramblePingResultAsync(IpAddresV4,TargetPort,Remarks, TimeMgr.GetLoaclDateTime(), pingResult);
 
                 Console.WriteLine($"{ checkReesultInfo.GetResultInfoString()} { Environment.NewLine}");
 

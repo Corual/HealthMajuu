@@ -15,13 +15,13 @@ namespace ManjuuDomain.Dto
         /// 开始工作时间
         /// </summary>
         /// <value></value>
-        public DateTime? StartToWrokTime { get;  set; }
+        public string StartToWrokTime { get;  set; }
 
         /// <summary>
         /// 停止工作时间
         /// </summary>
         /// <value></value>
-        public DateTime? StopToWorkTime { get;  set; }
+        public string StopToWorkTime { get;  set; }
 
         /// <summary>
         ///每轮工作间隔时间，单位秒

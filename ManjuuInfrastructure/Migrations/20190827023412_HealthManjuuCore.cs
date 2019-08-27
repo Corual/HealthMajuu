@@ -16,8 +16,8 @@ namespace ManjuuInfrastructure.Migrations
                     CreateTime = table.Column<DateTime>(nullable: false),
                     LastUpdateTime = table.Column<DateTime>(nullable: false),
                     State = table.Column<int>(nullable: false),
-                    StartToWrokTime = table.Column<DateTime>(nullable: false),
-                    StopToWorkTime = table.Column<DateTime>(nullable: false),
+                    StartToWrokTime = table.Column<DateTime>(nullable: true),
+                    StopToWorkTime = table.Column<DateTime>(nullable: true),
                     WorkSpan = table.Column<int>(nullable: true),
                     PresetTimeout = table.Column<int>(nullable: false),
                     PingSendCount = table.Column<int>(nullable: false)

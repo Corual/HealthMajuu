@@ -1,4 +1,5 @@
 using System;
+using ManjuuCommon.Tools;
 using ManjuuInfrastructure.Repository.Enum;
 
 namespace ManjuuInfrastructure.Repository.Entity {
@@ -16,19 +17,19 @@ namespace ManjuuInfrastructure.Repository.Entity {
         /// 数据创建时间
         /// </summary>
         /// <value></value>
-        public DateTime CreateTime { get; set; }
+        public DateTime CreateTime { get; set; } = TimeMgr.GetLoaclDateTime();
 
         /// <summary>
         /// 数据最后更新时间
         /// </summary>
         /// <value></value>
-        public DateTime LastUpdateTime { get; set; }
+        public DateTime LastUpdateTime { get; set; } = TimeMgr.GetLoaclDateTime();
 
         /// <summary>
         /// 数据状态
         /// </summary>
         /// <value></value>
-        public DataState State { get; set; }
+        public DataState State { get; set; } = DataState.Enable;
 
     }
 }

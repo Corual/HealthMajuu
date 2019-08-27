@@ -61,16 +61,16 @@ namespace ManjuuInfrastructure.Repository
                 using (HealthManjuuCoreContext context = new HealthManjuuCoreContext())
                 {
 
-                    //context.JobConfigurations.Add(new JobConfiguration() {PingSendCount=4, PresetTimeout=1000, StartToWrokTime=DateTime.UtcNow, StopToWorkTime= DateTime.UtcNow.AddHours(6), WorkSpan = 4000 });
-                    //await context.SaveChangesAsync();
-
                     var query = context.JobConfigurations.Where(p => p.State != DataState.Disable).AsNoTracking();
                     if (! await query.AnyAsync())
                     {
                         return null;
                     }
 
-                    return await query.ProjectTo<ToolConfigDto>(_mapperCfg).ToListAsync();
+                    List<JobConfiguration> jobList = await query.ToListAsync();
+
+                   return EntityAutoMapper.Instance.GetMapperResult<List<ToolConfigDto>>(_mapperCfg, jobList);
+
 
                 }
             }
@@ -114,7 +114,20 @@ namespace ManjuuInfrastructure.Repository
                             }
 
                             jobConfiguration.Id = 0; //数据库会自动生成，把id重置为默认值
-                            return await AddConfigDataAsync(context, jobConfiguration);
+                            bool result = await AddConfigDataAsync(context, jobConfiguration);
+
+                            if (result)
+                            {
+                                transaction.Commit();
+                                await context.SaveChangesAsync();
+
+                            }
+                            else
+                            {
+                                transaction.Rollback();
+                            }
+
+                            return result;
                         }
                         catch (System.Exception ex)
                         {
