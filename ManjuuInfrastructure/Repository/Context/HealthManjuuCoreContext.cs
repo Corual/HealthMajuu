@@ -13,6 +13,8 @@ namespace ManjuuInfrastructure.Repository.Context {
     {
         public DbSet<JobConfiguration> JobConfigurations { get; set; }
 
+        public DbSet<MachineInfo> MachineInfos { get; set; }
+
         public HealthManjuuCoreContext()
         {
 

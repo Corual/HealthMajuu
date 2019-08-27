@@ -37,6 +37,11 @@ namespace ManjuuCommon.DataPackages
         /// </summary>
         public int AfterPage { get; set; }
 
+        /// <summary>
+        /// 总数据量
+        /// </summary>
+        public int Total { get; set; }
+
         public PageMsg()
         {
                 
@@ -47,12 +52,14 @@ namespace ManjuuCommon.DataPackages
         /// </summary>
         /// <param name="list">集合</param>
         /// <param name="currentPage">当前页码</param>
+        /// <param name="total">总数据条数</param>
         /// <param name="pageCapacity">页容量，默认20</param>
-        public PageMsg(List<T> list, int currentPage, int pageCapacity=20)
+        public PageMsg(List<T> list, int currentPage, int total,int pageCapacity=20)
         {
             PageData = list;
             EachPageDataCount = pageCapacity;
             CurrentPage = currentPage;
+            Total = total;
              GetPageInfo();
         }
 
@@ -71,7 +78,7 @@ namespace ManjuuCommon.DataPackages
             EachPageDataCount = EachPageDataCount < 1 ? 20 : EachPageDataCount;
 
             //计算最大页数
-            TotalPage = (int)Math.Ceiling(TotalPage * 1.0 / EachPageDataCount);
+            TotalPage = (int)Math.Ceiling(Total * 1.0 / EachPageDataCount);
 
             //最大页区间
             int maxPageSpan = 2;

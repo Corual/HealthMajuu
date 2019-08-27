@@ -3,6 +3,11 @@
     ViewData["Title"] = "Machine";
 }
 
+@using ManjuuCommon.DataPackages
+@using ManjuuDomain.Dto
+
+@model PageMsg<EquipmentDto>
+
 @section styles{
     <link href="~/css/animate.css" rel="stylesheet" />
     <link href="~/css/ladda-themeless.min.css" rel="stylesheet" />
@@ -15,8 +20,8 @@
         <h1 class="h2">设备列表</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
             <div class="btn-group mr-2">
-                <button type="button" class="btn btn-sm   btn-primary">设备导入</button>
-                <button type="button" class="btn btn-sm btn btn-success">设备导出</button>
+                <button id="import" type="button" class="btn btn-sm   btn-primary ladda-button" data-style="expand-left"><span class="ladda-label">设备导入</span></button>
+                <button id="export" type="button" class="btn btn-sm btn btn-success ladda-button" data-style="expand-right"><span class="ladda-label">导出设备</span></button>
             </div>
             @*<button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
@@ -75,108 +80,46 @@
                         <th>备注</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>1,001</td>
-                        <td>1.1.1.1</td>
-                        <td>百度</td>
-                    </tr>
-                    <tr>
-                        <td>1,002</td>
-                        <td>2.2.2.2</td>
-                        <td>哔哩哔哩吧</td>
-                    </tr>
-                    <tr>
-                        <td>1,003</td>
-                        <td>Integer</td>
-                        <td>nec</td>
-                    </tr>
-                    <tr>
-                        <td>1,003</td>
-                        <td>libero</td>
-                        <td>Sed</td>
-                    </tr>
-                    <tr>
-                        <td>1,004</td>
-                        <td>dapibus</td>
-                        <td>diam</td>
-                    </tr>
-                    <tr>
-                        <td>1,005</td>
-                        <td>Nulla</td>
-                        <td>quis</td>
-                    </tr>
-                    <tr>
-                        <td>1,006</td>
-                        <td>nibh</td>
-                        <td>elementum</td>
-                    </tr>
-                    <tr>
-                        <td>1,007</td>
-                        <td>sagittis</td>
-                        <td>ipsum</td>
-                    </tr>
-                    <tr>
-                        <td>1,008</td>
-                        <td>Fusce</td>
-                        <td>nec</td>
-                    </tr>
-                    <tr>
-                        <td>1,009</td>
-                        <td>augue</td>
-                        <td>semper</td>
-                    </tr>
-                    <tr>
-                        <td>1,010</td>
-                        <td>massa</td>
-                        <td>Vestibulum</td>
-                    </tr>
-                    <tr>
-                        <td>1,011</td>
-                        <td>eget</td>
-                        <td>nulla</td>
-                    </tr>
-                    <tr>
-                        <td>1,012</td>
-                        <td>taciti</td>
-                        <td>sociosqu</td>
-                    </tr>
-                    <tr>
-                        <td>1,013</td>
-                        <td>torquent</td>
-                        <td>per</td>
-                    </tr>
-                    <tr>
-                        <td>1,014</td>
-                        <td>per</td>
-                        <td>inceptos</td>
-                    </tr>
-                    <tr>
-                        <td>1,015</td>
-                        <td>sodales</td>
-                        <td>ligula</td>
-                    </tr>
+                <tbody id="dataBody">
+                    @if (null != Model && Model.BusinessResult)
+                    {
+                        @foreach (var item in Model.PageData)
+                        {
+                            <tr>
+                                <td>@item.Id</td>
+                                <td>@item.IpAddressV4</td>
+                                <td>@(string.IsNullOrEmpty(item.Remarks) ? "" : item.Remarks)</td>
+                            </tr>
+                        }
+                    }
                 </tbody>
             </table>
         </div>
     </main>
 </div>
 
-<div class="page_ctrl">
-    <button class="prev_page">上一页</button>
-    <button class="page_num">1</button>
-    <button class="page_num">2</button>
-    <button class="page_num">3</button>
-    <button class="page_num current_page">4</button>
-    <button class="page_num">5</button>
-    <button class="page_num">6</button>
-    <button class="page_num">7</button>
-    <button class="page_num">8</button>
-    <span class="page_dot">•••</span>
-    <button class="page_num">19</button>
-    <button class="next_page">下一页</button>
-    <span class="page_total">共 19 页</span>
+<div class="page_1">
+    @*<button class="prev_page">上一页</button>
+        <button class="page_num">1</button>
+        <button class="page_num">2</button>
+        <button class="page_num">3</button>
+        <button class="page_num current_page">4</button>
+        <button class="page_num">5</button>
+        <button class="page_num">6</button>
+        <button class="page_num">7</button>
+        <button class="page_num">8</button>
+        <span class="page_dot">•••</span>
+        <button class="page_num">19</button>
+        <button class="next_page">下一页</button>
+        <span class="page_total">共 19 页</span>*@
 </div>
+<script>
+        var loadPageInfo = new Object();
+        loadPageInfo.total = @Model.Total;
+        loadPageInfo.eachPageDataCount = @Model.EachPageDataCount;
+    loadPageInfo.current = @Model.CurrentPage;
+    loadPageInfo.businessResult = @(Model.BusinessResult?1:0);
+</script>
 
 @section Scripts{
     <script src="~/js/axios.min.js"></script>
@@ -184,5 +127,5 @@
     <script src="~/js/ladda.min.js"></script>
     <script src="~/js/notice.js"></script>
     <script src="~/js/toPage.js"></script>
-
+    <script src="~/js/machine_index.js"></script>
 }

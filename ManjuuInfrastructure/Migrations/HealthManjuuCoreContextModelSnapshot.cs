@@ -41,6 +41,28 @@ namespace ManjuuInfrastructure.Migrations
 
                     b.ToTable("JobConfigurations");
                 });
+
+            modelBuilder.Entity("ManjuuInfrastructure.Repository.Entity.MachineInfo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("CreateTime");
+
+                    b.Property<string>("IpAddressV4");
+
+                    b.Property<DateTime>("LastUpdateTime");
+
+                    b.Property<string>("Port");
+
+                    b.Property<string>("Remarks");
+
+                    b.Property<int>("State");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MachineInfos");
+                });
 #pragma warning restore 612, 618
         }
     }

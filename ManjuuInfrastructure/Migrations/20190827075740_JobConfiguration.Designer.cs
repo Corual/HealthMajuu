@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ManjuuInfrastructure.Migrations
 {
     [DbContext(typeof(HealthManjuuCoreContext))]
-    [Migration("20190827023412_HealthManjuuCore")]
-    partial class HealthManjuuCore
+    [Migration("20190827075740_JobConfiguration")]
+    partial class JobConfiguration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -42,6 +42,28 @@ namespace ManjuuInfrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("JobConfigurations");
+                });
+
+            modelBuilder.Entity("ManjuuInfrastructure.Repository.Entity.MachineInfo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("CreateTime");
+
+                    b.Property<string>("IpAddressV4");
+
+                    b.Property<DateTime>("LastUpdateTime");
+
+                    b.Property<string>("Port");
+
+                    b.Property<string>("Remarks");
+
+                    b.Property<int>("State");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MachineInfos");
                 });
 #pragma warning restore 612, 618
         }
