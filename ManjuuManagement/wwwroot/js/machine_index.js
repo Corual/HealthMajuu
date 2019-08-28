@@ -52,19 +52,23 @@ $(function () {
         msg = msg || '';
         notifyTpye = notifyTpye || 'success';
         callAction = callAction || function () { };
-        new NoticeJs({
-            text: msg,
-            position: 'middleCenter',
-            type: notifyTpye, //error， warning， info， success
-            modal: true,
-            animation: {
-                open: 'animated lightSpeedIn',
-                close: 'animated lightSpeedOut'
-            },
-            callbacks: {
-                onClose: [callAction]
-            }
-        }).show();
+        try {
+            new NoticeJs({
+                text: msg,
+                position: 'middleCenter',
+                type: notifyTpye, //error， warning， info， success
+                modal: true,
+                animation: {
+                    open: 'animated lightSpeedIn',
+                    close: 'animated lightSpeedOut'
+                },
+                callbacks: {
+                    onClose: [callAction]
+                }
+            }).show();
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     function pageDataLoad(pageData) {
@@ -101,9 +105,15 @@ $(function () {
 
     exlFile.change(function (e) {
         //console.log(e);
-        console.log(this.files);
+        //console.log(this.files);
 
-        if (this.files.length <1)
+        exportDataButton.attr('disabled', 'disabled');
+        importDataButton.attr('disabled', 'disabled');
+        importLoader = getLoding(importDataButton[0]);
+        importLoader.start();
+
+        var fileField = this;
+        if (fileField.files.length <1)
         {
             
             importLoader.stop();
@@ -112,7 +122,7 @@ $(function () {
             return;
         }
 
-        var fileName = this.files[0].name;
+        var fileName = fileField.files[0].name;
         var index = fileName.lastIndexOf(".");
         var suffix = fileName.substring(index + 1);
         var suffixCollection = ['xlsx'];//['xls', 'xlsx', 'csv'];
@@ -127,7 +137,7 @@ $(function () {
         }
 
         var fd = new FormData();
-        fd.append('file', this.files[0]);
+        fd.append('file', fileField.files[0]);
         //console.log(fd.get('file'))
 
         axios({
@@ -140,6 +150,7 @@ $(function () {
                 importLoader.stop();
                 exportDataButton.removeAttr('disabled');
                 importDataButton.removeAttr('disabled');
+                exlFile.val('');
                 var serverData = response.data;
 
                 serverData.businessResult ?
@@ -151,6 +162,7 @@ $(function () {
                 importLoader.stop();
                 exportDataButton.removeAttr('disabled');
                 importDataButton.removeAttr('disabled');
+                exlFile.val('');
                 notify(error, 'warning');
             });
 
@@ -158,10 +170,7 @@ $(function () {
     });
 
     importDataButton.click(function () {
-        exportDataButton.attr('disabled', 'disabled');
-        var THIS = $(this);
-        importLoader = getLoding(this);
-        importLoader.start();
+  
         exlFile.click();
 
     });
@@ -172,20 +181,92 @@ $(function () {
         var loader = getLoding(this);
         loader.start();
 
-        axios.post('/Machine/Export', {} )
+        axios.post('/Machine/Export', {}, { responseType: 'arraybuffer'})
             .then(function (response) {
                 loader.stop();
-                THIS.removeAttr('disabled');
-                var serverData = response.data;
+                exportDataButton.removeAttr('disabled');
+                importDataButton.removeAttr('disabled');
+                if (response.headers['content-type'] == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+
+                    var url = window.URL.createObjectURL(new Blob([response.request.response]))
+                    var link = document.createElement('a')
+                    link.style.display = 'none'
+                    link.href = url
+                    link.setAttribute('download', (new Date()).valueOf()+'.xlsx')
+                    document.body.appendChild(link)
+                    link.click();
+                    return false;
+                }
+
+                var text = utf8ByteToUnicodeStr(Array.prototype.slice.call(new Uint8Array(response.data)));
+                var serverData  = JSON.parse(text);
                 serverData.businessResult ?
-                    notify(serverData.msg, 'success', function () { location.reload(); }) :
+                    notify(serverData.msg, 'success') :
                     notify(serverData.msg, 'error');
             })
             .catch(function (error) {
                 loader.stop();
-                THIS.removeAttr('disabled');
+                exportDataButton.removeAttr('disabled');
+                importDataButton.removeAttr('disabled');
                 notify(error, 'warning');
             });
 
     });
+
+    function utf8ByteToUnicodeStr(utf8Bytes) {
+        var unicodeStr = "";
+        for (var pos = 0; pos < utf8Bytes.length;) {
+            var flag = utf8Bytes[pos];
+            var unicode = 0;
+            if ((flag >>> 7) === 0) {
+                unicodeStr += String.fromCharCode(utf8Bytes[pos]);
+                pos += 1;
+
+            } else if ((flag & 0xFC) === 0xFC) {
+                unicode = (utf8Bytes[pos] & 0x3) << 30;
+                unicode |= (utf8Bytes[pos + 1] & 0x3F) << 24;
+                unicode |= (utf8Bytes[pos + 2] & 0x3F) << 18;
+                unicode |= (utf8Bytes[pos + 3] & 0x3F) << 12;
+                unicode |= (utf8Bytes[pos + 4] & 0x3F) << 6;
+                unicode |= (utf8Bytes[pos + 5] & 0x3F);
+                unicodeStr += String.fromCharCode(unicode);
+                pos += 6;
+
+            } else if ((flag & 0xF8) === 0xF8) {
+                unicode = (utf8Bytes[pos] & 0x7) << 24;
+                unicode |= (utf8Bytes[pos + 1] & 0x3F) << 18;
+                unicode |= (utf8Bytes[pos + 2] & 0x3F) << 12;
+                unicode |= (utf8Bytes[pos + 3] & 0x3F) << 6;
+                unicode |= (utf8Bytes[pos + 4] & 0x3F);
+                unicodeStr += String.fromCharCode(unicode);
+                pos += 5;
+
+            } else if ((flag & 0xF0) === 0xF0) {
+                unicode = (utf8Bytes[pos] & 0xF) << 18;
+                unicode |= (utf8Bytes[pos + 1] & 0x3F) << 12;
+                unicode |= (utf8Bytes[pos + 2] & 0x3F) << 6;
+                unicode |= (utf8Bytes[pos + 3] & 0x3F);
+                unicodeStr += String.fromCharCode(unicode);
+                pos += 4;
+
+            } else if ((flag & 0xE0) === 0xE0) {
+                unicode = (utf8Bytes[pos] & 0x1F) << 12;;
+                unicode |= (utf8Bytes[pos + 1] & 0x3F) << 6;
+                unicode |= (utf8Bytes[pos + 2] & 0x3F);
+                unicodeStr += String.fromCharCode(unicode);
+                pos += 3;
+
+            } else if ((flag & 0xC0) === 0xC0) { //110
+                unicode = (utf8Bytes[pos] & 0x3F) << 6;
+                unicode |= (utf8Bytes[pos + 1] & 0x3F);
+                unicodeStr += String.fromCharCode(unicode);
+                pos += 2;
+
+            } else {
+                unicodeStr += String.fromCharCode(utf8Bytes[pos]);
+                pos += 1;
+            }
+        }
+        return unicodeStr;
+    }
 });

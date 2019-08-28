@@ -102,22 +102,13 @@ namespace ManjuuInfrastructure.Repository
                             Console.WriteLine("进行批量导入数据");
 
                            await  context.MachineInfos.AddRangeAsync(machineInfoList);
-                           int insertCount = await  context.MachineInfos.CountAsync();
+                            transaction.Commit();
+                            await context.SaveChangesAsync();
 
-                            if (insertCount > 0)
-                            {
-                                transaction.Commit();
-                                await context.SaveChangesAsync();
-                                Console.WriteLine($"成功导入{insertCount}条数据");
-                            }
-                            else
-                            {
-                                transaction.Rollback();
-                                Console.WriteLine($"数据导入失败");
-                            }
+                            Console.WriteLine($"成功导入{machineInfoList.Count}条数据");
 
 
-                            return insertCount > 0;
+                            return true;
                         }
                         catch (System.Exception ex)
                         {

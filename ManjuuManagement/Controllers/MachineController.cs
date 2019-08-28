@@ -53,7 +53,18 @@ namespace ManjuuManagement.Controllers
 
             MachineApplication application = new MachineApplication(Repository);
 
-            return Json(await application.ExportMachinesAsync());
+            var result = await application.ExportMachinesAsync();
+
+
+            if (!result.BusinessResult)
+            {
+                return Json(result);
+            }
+
+            string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            return File(result.ResponseData.GetAsByteArray(), XlsxContentType, "report.xlsx");
+
+           
         }
 
 

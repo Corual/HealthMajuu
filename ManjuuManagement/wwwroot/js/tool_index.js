@@ -55,19 +55,23 @@ $(function () {
         msg = msg || '';
         notifyTpye = notifyTpye || 'success';
         callAction = callAction || function () { };
-        new NoticeJs({
-            text: msg,
-            position: 'middleCenter',
-            type: notifyTpye, //error， warning， info， success
-            modal: true,
-            animation: {
-                open: 'animated lightSpeedIn',
-                close: 'animated lightSpeedOut'
-            },
-            callbacks: {
-                onClose: [callAction]
-            }
-        }).show();
+        try {
+            new NoticeJs({
+                text: msg,
+                position: 'middleCenter',
+                type: notifyTpye, //error， warning， info， success
+                modal: true,
+                animation: {
+                    open: 'animated lightSpeedIn',
+                    close: 'animated lightSpeedOut'
+                },
+                callbacks: {
+                    onClose: [callAction]
+                }
+            }).show();
+        } catch (e) {
+            console.log(e);
+        }
     }
 
 

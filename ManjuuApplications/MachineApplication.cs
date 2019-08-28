@@ -3,6 +3,7 @@ using ManjuuCommon.Tools;
 using ManjuuDomain.Dto;
 using ManjuuDomain.IDomain;
 using Microsoft.AspNetCore.Http;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -65,9 +66,18 @@ namespace ManjuuApplications
             //todo:导入前通知工具退出
 
             //todo:解析文件，得到List<EquipmentDto> 设备列表
-            List<EquipmentDto> list = ExcelOptr.ResolveExcelFile<EquipmentDto>();
+            List<EquipmentDto> list = null;
+            using (MemoryStream stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
 
-            bool success = await  Repository.ReplaceTargetsAsync(list);
+                list = ExcelOptr.ResolveExcelFile<EquipmentDto>(stream,
+                  new ExcelMapper[] { new ExcelMapper("ip",nameof(EquipmentDto.IpAddressV4)),
+                     new ExcelMapper("备注",nameof(EquipmentDto.Remarks))});
+            }
+
+
+            bool success = await Repository.ReplaceTargetsAsync(list);
 
             JsonDataMsg<string> result = null;
             if (success)
@@ -84,7 +94,7 @@ namespace ManjuuApplications
             return result;
         }
 
-        public async Task<JsonDataMsg<string>> ExportMachinesAsync()
+        public async Task<JsonDataMsg<ExcelPackage>> ExportMachinesAsync()
         {
             //先尝试获取100条数据
             int current = 1;
@@ -93,7 +103,23 @@ namespace ManjuuApplications
             if (0 == dataBoxDto.Total)
             {
                 //如果没有数据，则导出一个空的Excel模板文件，并返回
-                return null;
+                ExcelPackage emptyExcelPackage = ExcelOptr.CreateExcel(new ExcelConfig()
+                {
+                    CreateWorksheetCallBack = (worksheet) =>
+                    {
+                        //定义头
+                        worksheet.Cells[1, 1].Value = "ip";
+                        worksheet.Cells[1, 2].Value = "备注";
+                    }
+                });
+
+                if (null == emptyExcelPackage)
+                {
+                    return new JsonDataMsg<ExcelPackage>(null, false, $"创建Excel失败");
+                }
+
+
+                return new JsonDataMsg<ExcelPackage>(emptyExcelPackage, true, "");
             }
 
             //有数据则根据数据，得到总分页数，便于后续遍历
@@ -102,12 +128,12 @@ namespace ManjuuApplications
             if (totalPage > current)
             {
                 //还需要获取后面分页的数据
-                while (++current <= totalPage) 
+                while (++current <= totalPage)
                 {
                     dataBoxDto = await Repository.QuantitativeTargetsAsync(current, capacity);
                     if ((null == dataBoxDto.Data || !dataBoxDto.Data.Any()) && (current <= totalPage))
                     {
-                        return new JsonDataMsg<string>(null, false, $"导出第{current}页数据的时候出错了");
+                        return new JsonDataMsg<ExcelPackage>(null, false, $"导出第{current}页数据的时候出错了");
                     }
 
                     if (null != dataBoxDto.Data && dataBoxDto.Data.Any())
@@ -120,8 +146,29 @@ namespace ManjuuApplications
 
             //取完剩余的分页数据，则可以开始生成Excel文件
             //todo:生成Excel文件
+            ExcelPackage excelPackage = ExcelOptr.CreateExcel(new ExcelConfig()
+            {
+                CreateWorksheetCallBack = (worksheet) =>
+                {
+                    //定义头
+                    worksheet.Cells[1, 1].Value = "ip";
+                    worksheet.Cells[1, 2].Value = "备注";
 
-            return null;
+                    for (int i = 0; i < eqList.Count; i++)
+                    {
+                        worksheet.Cells[i + 2, 1].Value = eqList[i].IpAddressV4;
+                        worksheet.Cells[i + 2, 2].Value = eqList[i].Remarks ?? string.Empty;
+                    }
+                }
+            });
+
+            if (null == excelPackage)
+            {
+                return new JsonDataMsg<ExcelPackage>(null, false, $"创建Excel失败");
+            }
+
+
+            return new JsonDataMsg<ExcelPackage>(excelPackage, true, "");
         }
     }
 }
