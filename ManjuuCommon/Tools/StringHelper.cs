@@ -16,7 +16,7 @@ namespace ManjuuCommon.Tools
         /// <returns></returns>
         public static string StringWithTrim(string input)
         {
-            if (!string.IsNullOrEmpty(input))
+            if (!string.IsNullOrWhiteSpace(input))
             {
                 return input.Trim();
             }

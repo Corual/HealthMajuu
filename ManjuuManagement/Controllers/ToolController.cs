@@ -24,6 +24,7 @@ namespace ManjuuManagement.Controllers
         }
         public async Task<IActionResult> Index()
         {
+
             List<ToolConfigDto> list = await CheckConfigRepository.GetValidConfigsAsync();
             ToolConfigDto result = null;
             if (list != null && list.Any())

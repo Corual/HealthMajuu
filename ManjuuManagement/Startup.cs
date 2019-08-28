@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using ManjuuDomain.IDomain;
+using ManjuuManagement.Filters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -34,8 +35,15 @@ namespace ManjuuManagement
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            //让ioc自动帮我注入Filter
+            services.AddSingleton<ManjuuExceptionFilter>();
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc(option =>
+            {
+                var serviceProvider = services.BuildServiceProvider();
+                option.Filters.Add(serviceProvider.GetService<ManjuuExceptionFilter>());
+                option.ModelBinderProviders.Insert(0, new StringTrimModelBinderProvider(option.InputFormatters));
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             //配置IOC
             Assembly.Load("ManjuuDomain");
@@ -69,7 +77,21 @@ namespace ManjuuManagement
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                //app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler(errorApp =>
+                {
+                    errorApp.Run(async context =>
+                    {
+                        context.Response.StatusCode = 500;
+                        if (context.Request.Headers["X-Requested-With"] != "XMLHttpRequest")
+                        {
+                            context.Response.ContentType = "text/html";
+                            await context.Response.SendFileAsync($@"{env.WebRootPath}/manjuuerrors/500.html");
+                        }
+                    });
+                });
+
+                //app.UseStatusCodePagesWithReExecute("/Home/Error");
             }
 
             app.UseStaticFiles();
@@ -81,6 +103,8 @@ namespace ManjuuManagement
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+           
         }
     }
 }
