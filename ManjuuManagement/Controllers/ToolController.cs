@@ -16,16 +16,24 @@ namespace ManjuuManagement.Controllers
 {
     public class ToolController : Controller
     {
-        private ICheckConfigRepository CheckConfigRepository;
+        private ICheckConfigRepository _repository;
 
-        public ToolController(ICheckConfigRepository checkConfigRepository)
+        IToolConfigApplication _application;
+
+        //public ToolController(ICheckConfigRepository checkConfigRepository)
+        //{
+        //    CheckConfigRepository = checkConfigRepository;
+        //}
+
+        public ToolController(ICheckConfigRepository repository, IToolConfigApplication application)
         {
-            CheckConfigRepository = checkConfigRepository;
+            _repository = repository;
+            _application = application;
         }
         public async Task<IActionResult> Index()
         {
 
-            List<ToolConfigDto> list = await CheckConfigRepository.GetValidConfigsAsync();
+            List<ToolConfigDto> list = await _repository.GetValidConfigsAsync();
             ToolConfigDto result = null;
             if (list != null && list.Any())
             {
@@ -37,17 +45,17 @@ namespace ManjuuManagement.Controllers
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] ToolConfigDto newConfiguration)
         {
-            var application = new ToolConfigutaionApplication(CheckConfigRepository);
+            //var _application = new ToolConfigutaionApplication(CheckConfigRepository);
             
-            return Json(await application.UserAddConfigurationToToolAsync(newConfiguration));
+            return Json(await _application.UserAddConfigurationToToolAsync(newConfiguration));
         }
 
         [HttpPost]
         public async Task<IActionResult> Update([FromBody] ToolConfigDto newConfiguration)
         {
-            var application = new ToolConfigutaionApplication(CheckConfigRepository);
+            //var _application = new ToolConfigutaionApplication(CheckConfigRepository);
 
-            return Json(await application.UserAlterConfigurationToToolAsync(newConfiguration));
+            return Json(await _application.UserAlterConfigurationToToolAsync(newConfiguration));
         }
 
     }

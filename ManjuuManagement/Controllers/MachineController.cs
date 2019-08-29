@@ -4,35 +4,46 @@ using System.Linq;
 using System.Threading.Tasks;
 using ManjuuApplications;
 using ManjuuCommon.DataPackages;
+using ManjuuCommon.ILog;
 using ManjuuDomain.Dto;
 using ManjuuDomain.IDomain;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NLog;
 
 namespace ManjuuManagement.Controllers
 {
     public class MachineController : Controller
     {
-        ICheckTargetRepository Repository;
-        public MachineController(ICheckTargetRepository repository)
+        //ICheckTargetRepository _repository;
+        IMachineApplication _application;
+
+        //public MachineController(ICheckTargetRepository repository)
+        //{
+        //    _repository = repository;
+        //}
+
+        public MachineController(IMachineApplication machineApplication)
         {
-            Repository = repository;
+            _application = machineApplication;
         }
 
         public async Task<IActionResult> Index()
         {
-            MachineApplication application = new MachineApplication(Repository);
+            //MachineApplication _application = new MachineApplication(_repository);
 
-            PageMsg<EquipmentDto> pageMsg = await application.PaggingMachinesAsync(1);
+            PageMsg<EquipmentDto> pageMsg = await _application.PaggingMachinesAsync(1);
             return View(pageMsg);
+
+
         }
 
         [HttpPost]
         public async Task<IActionResult> Paging(int id)
         {
-            MachineApplication application = new MachineApplication(Repository);
+            //MachineApplication _application = new MachineApplication(_repository);
 
-            PageMsg<EquipmentDto> pageMsg = await application.PaggingMachinesAsync(id);
+            PageMsg<EquipmentDto> pageMsg = await _application.PaggingMachinesAsync(id);
             return Json(pageMsg);
         }
 
@@ -41,9 +52,9 @@ namespace ManjuuManagement.Controllers
         {
             //用axios库，不能用IFormFile接收，改用IFormCollection
 
-            MachineApplication application = new MachineApplication(Repository);
+            //MachineApplication _application = new MachineApplication(_repository);
 
-            return Json(await application.ImportingMachinesAsync(formCollection));
+            return Json(await _application.ImportingMachinesAsync(formCollection));
         }
 
 
@@ -51,9 +62,9 @@ namespace ManjuuManagement.Controllers
         public async Task<IActionResult> Export(IFormFile formFile)
         {
 
-            MachineApplication application = new MachineApplication(Repository);
+            //MachineApplication _application = new MachineApplication(_repository);
 
-            var result = await application.ExportMachinesAsync();
+            var result = await _application.ExportMachinesAsync();
 
 
             if (!result.BusinessResult)

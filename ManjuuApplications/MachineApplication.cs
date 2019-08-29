@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace ManjuuApplications
 {
-    public class MachineApplication
+    public class MachineApplication: IMachineApplication
     {
         private ICheckTargetRepository Repository;
         public MachineApplication(ICheckTargetRepository repository)

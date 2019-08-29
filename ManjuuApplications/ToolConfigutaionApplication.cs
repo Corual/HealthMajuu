@@ -10,7 +10,7 @@ using ManjuuInfrastructure.Repository.Mapper.Auto;
 
 namespace ManjuuApplications
 {
-    public class ToolConfigutaionApplication
+    public class ToolConfigutaionApplication: IToolConfigApplication
     {
         private ICheckConfigRepository Repository;
 
