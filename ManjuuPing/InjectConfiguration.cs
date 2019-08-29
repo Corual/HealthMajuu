@@ -3,13 +3,13 @@ using System.IO;
 using System.Reflection;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using ManjuuCommon.Log;
+using ManjuuCommon.ILog;
 using ManjuuDomain.IDomain;
 using Microsoft.Extensions.Configuration;
 using NLog;
 using NLog.Extensions.Logging;
 using System.Linq;
-using ManjuuCommon.Log.NLog;
+using ManjuuCommon.ILog.NLog;
 
 namespace ManjuuPing
 {
