@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using Autofac;
+using ManjuuCommon.Log;
+using ManjuuCommon.Log.NLog;
 using ManjuuDomain.HealthCheck;
 using ManjuuDomain.IDomain;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,12 +17,13 @@ namespace ManjuuPing
 {
     class Program
     {
-        private static ILogger _logger =LogManager.GetCurrentClassLogger();
+        private static ILogger _logger = null;
 
         static Program()
         {
             InjectConfiguration.DeployAutoFac();
-            InjectConfiguration.DeployNLog();
+            _logger = InjectConfiguration.Container.Resolve<IDefaultLog<ILogger>>().GetLogger();
+
         }
         static void Main(string[] args)
         {
@@ -36,13 +39,29 @@ namespace ManjuuPing
             // new CheckTarget("www.jianshu.com", "80", "简书").TryPingAsync();
             // new CheckTarget("www.google.com", "80", "谷歌").TryPingAsync();
 
-            // var taskController = container.Resolve<TaskController>(); //AutoFac
-            InjectConfiguration.ServiceProvider.GetRequiredService<TestNLog>(); //MsILogger
-            _logger.Debug("console NLog success!!!!"); //NLog
+
+
+            LogEventInfo theEvent = NLogMgr.GetEventInfo(LogLevel.Debug, "", NLogMgr.LoggerName.Check);
+            NLogMgr.SetEventProperties(theEvent, 
+                new SetEventPropertieParam() {Property= NLogMgr.EventProperties.CheckTarget, Value= "bilibili" },
+                new SetEventPropertieParam() { Property = NLogMgr.EventProperties.CheckMsg, Value = "Ping 丢包100%" },
+                new SetEventPropertieParam() { Property = NLogMgr.EventProperties.CheckResult, Value = "超时\r\n超时\r\n超时\r\n超时fdsfkdsfsldkl" });
+            //theEvent.LoggerName = "CHECK_LOGGER";
+            //theEvent.Properties["CheckTarget"] = "bilibili";
+            //theEvent.Properties["CheckMsg"] = "Ping 丢包100%";
+            //theEvent.Properties["CheckResult"] = "超时\r\n超时\r\n超时\r\n超时fdsfkdsfsldkl";
+            var checkLogger = InjectConfiguration.Container.Resolve<ICheckLog<ILogger>>().GetLogger();
+
+            checkLogger.Log(theEvent);
+            //theEvent.Properties["CheckLogType"] = "short";
+            //_logger.Factory.GetLogger("CHECK_LOGGER").Log(theEvent);
+            //_logger.Log(theEvent);
+
+
+
 
             try
             {
-                
                 Console.WriteLine("开始工作了");
                 Console.WriteLine("主线程正在阻塞，防止程序直接退出");
                 Console.WriteLine("强制退出按任意键");
@@ -50,12 +69,18 @@ namespace ManjuuPing
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message);
+                //_logger.Error(ex.Message);
+
+                LogEventInfo theEventError = new LogEventInfo(LogLevel.Error, "", "测试自定义目标");
+                theEventError.Exception = ex;
+                //theEventError.Properties["CheckTarget"] = "bilibili";
+                //theEvent.Properties["CheckLogType"] = "short";
+                _logger.Log(theEventError);
             }
             finally
             {
                 Console.WriteLine("程序正在退出");
-                InjectConfiguration.ServiceProvider.Dispose();
+                //InjectConfiguration.ServiceProvider.Dispose();
                 Console.WriteLine("程序可以退出了");
 
             }
@@ -88,7 +113,7 @@ namespace ManjuuPing
             {
                 Console.WriteLine(ex.Message);
             }
-            
+
         }
     }
 }

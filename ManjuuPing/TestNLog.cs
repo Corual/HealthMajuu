@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using NLog;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,11 +7,11 @@ namespace ManjuuPing
 {
     public class TestNLog
     {
-        private ILogger<TestNLog> _logger;
-        public TestNLog(ILogger<TestNLog> logger)
+        private ILogger _logger;
+        public TestNLog(ILogger logger)
         {
             _logger = logger;
-            _logger.LogError("testError");
+            
         }
     }
 }
