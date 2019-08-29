@@ -3,6 +3,8 @@ using ManjuuCommon.ILog;
 using ManjuuCommon.ILog.NLog;
 using ManjuuCommon.Tools;
 using ManjuuDomain.Dto;
+using ManjuuDomain.FileAssist;
+using ManjuuDomain.FileAssistService;
 using ManjuuDomain.IDomain;
 using Microsoft.AspNetCore.Http;
 using NLog;
@@ -54,38 +56,22 @@ namespace ManjuuApplications
 
             if (null == formCollection || null == formCollection.Files || !formCollection.Files.Any())
             {
-                NLogMgr.ErrorExLog(_errorLog, "服务器接收不到文件Excel文件", null);
+                NLogMgr.ErrorExLog(_errorLog, "服务器接收不到文件文件", null);
                 return new JsonDataMsg<string>(null, false, "服务器接收不到文件");
             }
 
             IFormFile file = formCollection.Files[0];
 
-            string extension = Path.GetExtension(file.FileName);
-
-            //var fileExtensions = new string[] { ".xlsx", ".xls", ".csv" };
-            //if (!fileExtensions.Contains(extension))
-            //{
-            //    return new JsonDataMsg<string>(null, false, "您上传的文件不是Excel文件");
-            //}
-
-            if (".xlsx" != extension)
+            if (!ExcelFile.ValidExcelFile(file))
             {
                 NLogMgr.DebugLog(_programLog, "您上传的文件不是*.xlsx后缀的文件");
                 return new JsonDataMsg<string>(null, false, "您上传的文件不是*.xlsx后缀的文件");
             }
 
+
             //todo:导入前通知工具退出
 
-            List<EquipmentDto> list = null;
-            using (MemoryStream stream = new MemoryStream())
-            {
-                await file.CopyToAsync(stream);
-
-                list = ExcelOptr.ResolveExcelFile<EquipmentDto>(stream,
-                  new ExcelMapper[] { new ExcelMapper("ip",nameof(EquipmentDto.IpAddressV4)),
-                     new ExcelMapper("备注",nameof(EquipmentDto.Remarks))});
-            }
-
+            List<EquipmentDto> list = await ExcelFileService.GetExcelDataAsync(file);
 
             bool success = await Repository.ReplaceTargetsAsync(list);
 
@@ -115,15 +101,7 @@ namespace ManjuuApplications
             if (0 == dataBoxDto.Total)
             {
                 //如果没有数据，则导出一个空的Excel模板文件，并返回
-                ExcelPackage emptyExcelPackage = ExcelOptr.CreateExcel(new ExcelConfig()
-                {
-                    CreateWorksheetCallBack = (worksheet) =>
-                    {
-                        //定义头
-                        worksheet.Cells[1, 1].Value = "ip";
-                        worksheet.Cells[1, 2].Value = "备注";
-                    }
-                });
+                ExcelPackage emptyExcelPackage = ExcelFileService.CreateEquipmentTemplate();
 
                 if (null == emptyExcelPackage)
                 {
@@ -160,21 +138,7 @@ namespace ManjuuApplications
 
             //取完剩余的分页数据，则可以开始生成Excel文件
             //todo:生成Excel文件
-            ExcelPackage excelPackage = ExcelOptr.CreateExcel(new ExcelConfig()
-            {
-                CreateWorksheetCallBack = (worksheet) =>
-                {
-                    //定义头
-                    worksheet.Cells[1, 1].Value = "ip";
-                    worksheet.Cells[1, 2].Value = "备注";
-
-                    for (int i = 0; i < eqList.Count; i++)
-                    {
-                        worksheet.Cells[i + 2, 1].Value = eqList[i].IpAddressV4;
-                        worksheet.Cells[i + 2, 2].Value = eqList[i].Remarks ?? string.Empty;
-                    }
-                }
-            });
+            ExcelPackage excelPackage = ExcelFileService.CreateEquipmentExcel(eqList);
 
             if (null == excelPackage)
             {

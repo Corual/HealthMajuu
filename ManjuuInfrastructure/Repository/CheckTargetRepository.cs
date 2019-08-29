@@ -84,6 +84,7 @@ namespace ManjuuInfrastructure.Repository
             {
                 if (null == equipmentDtos || !equipmentDtos.Any())
                 {
+                    NLogMgr.DebugLog(_programLog, "并没有需要导入的数据");
                     return false;
                 }
 

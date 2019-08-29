@@ -1,5 +1,6 @@
 ﻿using ManjuuApplications;
 using ManjuuCommon.ILog;
+using ManjuuCommon.ILog.NLog;
 using ManjuuDomain.IDomain;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,7 @@ namespace ManjuuPing
     {
         public static async Task Main(string[] args)
         {
+
             var host = new HostBuilder()
                 .ConfigureHostConfiguration(configHost =>
                 {
@@ -26,7 +28,7 @@ namespace ManjuuPing
                     configHost.SetBasePath(Directory.GetCurrentDirectory());
                     configHost.AddJsonFile("hostsettings.json", optional: true);
                     configHost.AddEnvironmentVariables(prefix: "PREFIX_");
-                    configHost.AddCommandLine(args); 
+                    configHost.AddCommandLine(args);
                     #endregion
                 })
                 .ConfigureAppConfiguration((hostContext, configApp) =>
@@ -37,7 +39,7 @@ namespace ManjuuPing
                         $"appsettings.{hostContext.HostingEnvironment.EnvironmentName}.json",
                         optional: true);
                     configApp.AddEnvironmentVariables(prefix: "PREFIX_");
-                    configApp.AddCommandLine(args); 
+                    configApp.AddCommandLine(args);
                     #endregion
                 })
                 .ConfigureServices((hostContext, services) =>
@@ -86,6 +88,8 @@ namespace ManjuuPing
                         }
                     }
                     #endregion
+
+                    NLogMgr.SetVariable(NLogMgr.ConfigurationVariables.Terrace, "检测工具");
 
                     services.AddHostedService<PingHostedService>();
 

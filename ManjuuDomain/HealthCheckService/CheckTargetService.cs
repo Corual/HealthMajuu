@@ -7,6 +7,8 @@ using ManjuuDomain.IDomain;
 using ManjuuDomain.PingCommands;
 using ManjuuDomain.Suppers;
 using ManjuuCommon.Tools;
+using System.Collections.Generic;
+using ManjuuDomain.Dto;
 
 namespace ManjuuDomain.HealthCheckService
 {
@@ -74,9 +76,6 @@ namespace ManjuuDomain.HealthCheckService
 
             return result;
         }
-
-
-
 
     }
 }

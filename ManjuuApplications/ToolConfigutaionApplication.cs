@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using ManjuuCommon.DataPackages;
@@ -17,6 +19,18 @@ namespace ManjuuApplications
         public ToolConfigutaionApplication(ICheckConfigRepository repository)
         {
             Repository = repository;
+        }
+
+        public async Task<ToolConfigDto> GetToolValidConfigAsync()
+        {
+            List<ToolConfigDto> list = await Repository.GetValidConfigsAsync();
+            ToolConfigDto result = null;
+            if (list != null && list.Any())
+            {
+                result = list[0];
+            }
+
+            return result;
         }
 
         /// <summary>
