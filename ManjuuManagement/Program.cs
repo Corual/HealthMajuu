@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ManjuuCommon.ILog.NLog;
+using ManjuuCommon.Tools;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -55,8 +56,19 @@ namespace ManjuuManagement
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)
         {
             NLogMgr.SetVariable( NLogMgr.ConfigurationVariables.Terrace, "测试工具管理后台");
-            return WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
+            string addressString = ServiceLaunchHelper.GetStartEndpoint(args);
+
+            //return WebHost.CreateDefaultBuilder(args)
+            //    .UseStartup<Startup>();
+
+            IWebHostBuilder webHostBuilder = WebHost.CreateDefaultBuilder(args);
+            if (!string.IsNullOrEmpty(addressString))
+            {
+                webHostBuilder.UseUrls(addressString);
+            }
+
+            return webHostBuilder.UseStartup<Startup>();
+
         }
     }
 }

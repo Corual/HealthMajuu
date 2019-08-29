@@ -1,119 +1,105 @@
-﻿using System;
-using System.Diagnostics;
+﻿using ManjuuApplications;
+using ManjuuCommon.ILog;
+using ManjuuDomain.IDomain;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using NLog;
+using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using System.Timers;
-using Autofac;
-using ManjuuCommon.ILog;
-using ManjuuCommon.ILog.NLog;
-using ManjuuDomain.HealthCheck;
-using ManjuuDomain.IDomain;
-using Microsoft.Extensions.DependencyInjection;
-using NLog;
 
 namespace ManjuuPing
 {
     class Program
     {
-        private static ILogger _logger = null;
-
-        static Program()
+        public static async Task Main(string[] args)
         {
-            InjectConfiguration.DeployAutoFac();
-            _logger = InjectConfiguration.Container.Resolve<IDefaultLog<ILogger>>().GetLogger();
-
-        }
-        static void Main(string[] args)
-        {
-
-            // ICheckConfigRepository CheckConfigRepository = InjectConfiguration.Container.Resolve<ICheckConfigRepository>();
-            // System.Console.WriteLine(CheckConfigRepository);
-
-
-            //Task pingTask = PingCoreCode();
-
-            //new CheckTarget("www.baidu.com", "80", "百度").TryPingAsync();
-            // new CheckTarget("www.bilibili.com", "80", "哔哩哔哩").TryPingAsync();
-            // new CheckTarget("www.jianshu.com", "80", "简书").TryPingAsync();
-            // new CheckTarget("www.google.com", "80", "谷歌").TryPingAsync();
-
-
-
-            LogEventInfo theEvent = NLogMgr.GetEventInfo(LogLevel.Debug, "", NLogMgr.LoggerName.Check);
-            NLogMgr.SetEventProperties(theEvent, 
-                new SetEventPropertieParam() {Property= NLogMgr.EventProperties.CheckTarget, Value= "bilibili" },
-                new SetEventPropertieParam() { Property = NLogMgr.EventProperties.CheckMsg, Value = "Ping 丢包100%" },
-                new SetEventPropertieParam() { Property = NLogMgr.EventProperties.CheckResult, Value = "超时\r\n超时\r\n超时\r\n超时fdsfkdsfsldkl" });
-            //theEvent.LoggerName = "CHECK_LOGGER";
-            //theEvent.Properties["CheckTarget"] = "bilibili";
-            //theEvent.Properties["CheckMsg"] = "Ping 丢包100%";
-            //theEvent.Properties["CheckResult"] = "超时\r\n超时\r\n超时\r\n超时fdsfkdsfsldkl";
-            var checkLogger = InjectConfiguration.Container.Resolve<ICheckLog<ILogger>>().GetLogger();
-
-            checkLogger.Log(theEvent);
-            //theEvent.Properties["CheckLogType"] = "short";
-            //_logger.Factory.GetLogger("CHECK_LOGGER").Log(theEvent);
-            //_logger.Log(theEvent);
-
-
-
-
-            try
-            {
-                Console.WriteLine("开始工作了");
-                Console.WriteLine("主线程正在阻塞，防止程序直接退出");
-                Console.WriteLine("强制退出按任意键");
-                Console.ReadKey();
-            }
-            catch (Exception ex)
-            {
-                //_logger.Error(ex.Message);
-
-                LogEventInfo theEventError = new LogEventInfo(LogLevel.Error, "", "测试自定义目标");
-                theEventError.Exception = ex;
-                //theEventError.Properties["CheckTarget"] = "bilibili";
-                //theEvent.Properties["CheckLogType"] = "short";
-                _logger.Log(theEventError);
-            }
-            finally
-            {
-                Console.WriteLine("程序正在退出");
-                //InjectConfiguration.ServiceProvider.Dispose();
-                Console.WriteLine("程序可以退出了");
-
-            }
-
-        }
-
-
-
-        public static async Task PingCoreCode()
-        {
-            try
-            {
-                using (Process process = new Process())
+            var host = new HostBuilder()
+                .ConfigureHostConfiguration(configHost =>
                 {
-                    ProcessStartInfo startInfo = process.StartInfo;
-                    startInfo.FileName = "ping";
-                    startInfo.Arguments = "www.baidu.com -c 4";
-                    startInfo.RedirectStandardOutput = true;
-                    //startInfo.StandardOutputEncoding = Encoding.UTF8;
-                    process.Start();
-                    using (StreamReader reader = process.StandardOutput)
+                    #region Host环境设置
+                    configHost.SetBasePath(Directory.GetCurrentDirectory());
+                    configHost.AddJsonFile("hostsettings.json", optional: true);
+                    configHost.AddEnvironmentVariables(prefix: "PREFIX_");
+                    configHost.AddCommandLine(args); 
+                    #endregion
+                })
+                .ConfigureAppConfiguration((hostContext, configApp) =>
+                {
+                    #region 程序配置
+                    configApp.AddJsonFile("appsettings.json", optional: true);
+                    configApp.AddJsonFile(
+                        $"appsettings.{hostContext.HostingEnvironment.EnvironmentName}.json",
+                        optional: true);
+                    configApp.AddEnvironmentVariables(prefix: "PREFIX_");
+                    configApp.AddCommandLine(args); 
+                    #endregion
+                })
+                .ConfigureServices((hostContext, services) =>
+                {
+                    //services.AddHostedService<LifetimeEventsHostedService>();
+                    //services.AddHostedService<TimedHostedService>();
+
+                    //程序都在这里注入
+
+                    #region IRepository
+                    var infrastructureAssembly = Assembly.Load("ManjuuInfrastructure");
+                    var repositoryTypes = infrastructureAssembly.GetTypes().Where(p => !p.IsAbstract && typeof(IRepository).IsAssignableFrom(p));
+                    foreach (var item in repositoryTypes)
                     {
-                        string result = await reader.ReadToEndAsync();
-                        Console.WriteLine(result);
+                        foreach (var itemIntface in item.GetInterfaces())
+                        {
+                            if (typeof(IRepository) == itemIntface) { continue; }
+                            services.AddSingleton(itemIntface, item);
+                        }
                     }
-                }
+                    #endregion
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+                    #region ICustomLog
+                    var commonAssembly = Assembly.Load("ManjuuCommon");
+                    var customLogTypes = commonAssembly.GetTypes().Where(p => !p.IsAbstract && typeof(ICustomLog<ILogger>).IsAssignableFrom(p));
+                    foreach (var item in customLogTypes)
+                    {
+                        foreach (var itemIntface in item.GetInterfaces())
+                        {
+                            if (typeof(ICustomLog<ILogger>) == itemIntface) { continue; }
+                            services.AddSingleton(itemIntface, item);
+                        }
+                    }
+                    #endregion
 
+                    #region IApplication
+                    var applicationAssembly = Assembly.Load("ManjuuApplications");
+                    var applicationTypes = applicationAssembly.GetTypes().Where(p => !p.IsAbstract && typeof(IApplication).IsAssignableFrom(p));
+                    foreach (var item in applicationTypes)
+                    {
+                        foreach (var itemIntface in item.GetInterfaces())
+                        {
+                            if (typeof(IApplication) == itemIntface) { continue; }
+                            //同一个请求下单例
+                            services.AddScoped(itemIntface, item);
+                        }
+                    }
+                    #endregion
+
+                    services.AddHostedService<PingHostedService>();
+
+                })
+                .ConfigureLogging((hostContext, configLogging) =>
+                {
+                    //日志中间件
+                    //configLogging.AddConsole();
+                    //configLogging.AddDebug();
+                })
+                .UseConsoleLifetime()
+                .Build();
+
+            await host.RunAsync();
         }
     }
 }
