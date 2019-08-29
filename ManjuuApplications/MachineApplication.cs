@@ -1,8 +1,11 @@
 ﻿using ManjuuCommon.DataPackages;
+using ManjuuCommon.ILog;
+using ManjuuCommon.ILog.NLog;
 using ManjuuCommon.Tools;
 using ManjuuDomain.Dto;
 using ManjuuDomain.IDomain;
 using Microsoft.AspNetCore.Http;
+using NLog;
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
@@ -13,12 +16,18 @@ using System.Threading.Tasks;
 
 namespace ManjuuApplications
 {
-    public class MachineApplication: IMachineApplication
+    public class MachineApplication : IMachineApplication
     {
         private ICheckTargetRepository Repository;
-        public MachineApplication(ICheckTargetRepository repository)
+
+        private IProgramLog<ILogger> _programLog;
+        private IExceptionLog<ILogger> _errorLog;
+
+        public MachineApplication(ICheckTargetRepository repository, IProgramLog<ILogger> programLog, IExceptionLog<ILogger> errorLog)
         {
             Repository = repository;
+            _programLog = programLog;
+            _errorLog = errorLog;
         }
 
         public async Task<PageMsg<EquipmentDto>> PaggingMachinesAsync(int current, int capacity = 20)
@@ -45,6 +54,7 @@ namespace ManjuuApplications
 
             if (null == formCollection || null == formCollection.Files || !formCollection.Files.Any())
             {
+                NLogMgr.ErrorExLog(_errorLog, "服务器接收不到文件Excel文件", null);
                 return new JsonDataMsg<string>(null, false, "服务器接收不到文件");
             }
 
@@ -60,6 +70,7 @@ namespace ManjuuApplications
 
             if (".xlsx" != extension)
             {
+                NLogMgr.DebugLog(_programLog, "您上传的文件不是*.xlsx后缀的文件");
                 return new JsonDataMsg<string>(null, false, "您上传的文件不是*.xlsx后缀的文件");
             }
 
@@ -82,10 +93,12 @@ namespace ManjuuApplications
             JsonDataMsg<string> result = null;
             if (success)
             {
+                NLogMgr.DebugLog(_programLog, "设备导入完毕");
                 result = new JsonDataMsg<string>(null, success, "设备导入完毕");
             }
             else
             {
+                NLogMgr.DebugLog(_programLog, "导入设备操作过程发生异常");
                 result = new JsonDataMsg<string>(null, success, "导入设备操作过程发生异常");
             }
 
@@ -115,10 +128,11 @@ namespace ManjuuApplications
 
                 if (null == emptyExcelPackage)
                 {
-                    return new JsonDataMsg<ExcelPackage>(null, false, $"创建Excel失败");
+                    NLogMgr.ErrorExLog(_errorLog, "创建Excel失败", null);
+                    return new JsonDataMsg<ExcelPackage>(null, false, "创建Excel失败");
                 }
 
-
+                NLogMgr.DebugLog(_programLog, "创建Excel模板成功");
                 return new JsonDataMsg<ExcelPackage>(emptyExcelPackage, true, "");
             }
 
@@ -133,6 +147,7 @@ namespace ManjuuApplications
                     dataBoxDto = await Repository.QuantitativeTargetsAsync(current, capacity);
                     if ((null == dataBoxDto.Data || !dataBoxDto.Data.Any()) && (current <= totalPage))
                     {
+                        NLogMgr.ErrorExLog(_errorLog, $"导出第{current}页数据的时候出错了", null);
                         return new JsonDataMsg<ExcelPackage>(null, false, $"导出第{current}页数据的时候出错了");
                     }
 
@@ -164,10 +179,11 @@ namespace ManjuuApplications
 
             if (null == excelPackage)
             {
+                NLogMgr.ErrorExLog(_errorLog, "创建Excel失败", null);
                 return new JsonDataMsg<ExcelPackage>(null, false, $"创建Excel失败");
             }
 
-
+            NLogMgr.DebugLog(_programLog, "数据存储到内存Excel成功");
             return new JsonDataMsg<ExcelPackage>(excelPackage, true, "");
         }
     }
