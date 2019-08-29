@@ -20,7 +20,6 @@ namespace ManjuuPing
     {
         public static IContainer Container { get; private set; }
 
-        //public static ServiceProvider ServiceProvider { get; private set; }
 
         /// <summary>
         /// 配置DI
@@ -34,17 +33,6 @@ namespace ManjuuPing
             builder.RegisterAssemblyTypes(Assembly.Load("ManjuuDomain"), Assembly.Load("ManjuuInfrastructure"))
             .Where(p => !p.IsAbstract && typeof(IRepository).IsAssignableFrom(p))
             .AsImplementedInterfaces().PropertiesAutowired().SingleInstance();
-
-
-            //var types = Assembly.Load("ManjuuCommon").GetTypes().Where(p => !p.IsAbstract && typeof(ICustomLog<>).IsAssignableFrom(p));
-
-            //if (null != types && types.Any())
-            //{
-            //    foreach (var item in types)
-            //    {
-            //        builder.RegisterGeneric(item).AsImplementedInterfaces().PropertiesAutowired().SingleInstance();
-            //    }
-            //}
 
 
             builder.RegisterAssemblyTypes(Assembly.Load("ManjuuCommon"))

@@ -76,7 +76,6 @@ namespace ManjuuApplications
 
             //todo:导入前通知工具退出
 
-            //todo:解析文件，得到List<EquipmentDto> 设备列表
             List<EquipmentDto> list = null;
             using (MemoryStream stream = new MemoryStream())
             {
