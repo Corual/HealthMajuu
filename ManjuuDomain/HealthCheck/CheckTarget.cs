@@ -34,8 +34,9 @@ namespace ManjuuDomain.HealthCheck
 
         }
 
-        public CheckTarget(string ipv4, string port, string remarks)
+        public CheckTarget(int id,string ipv4, string port, string remarks)
         {
+            this.Id = id;
             this.IpAddresV4 = ipv4;
             this.TargetPort = port;
             this.Remarks = remarks;

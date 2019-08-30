@@ -19,7 +19,7 @@ namespace ManjuuNUnitTest
         [Test]
         public async Task PingResultTest()
         {
-            IPingable target = new CheckTarget("www.baidu.com", "80", "百度");
+            IPingable target = new CheckTarget(1,"www.baidu.com", "80", "百度");
             Assert.NotNull(target);
 
             string result = await CheckTargetService.PingRemoteTargetAsync(target);

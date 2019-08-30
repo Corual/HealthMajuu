@@ -6,6 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog;
+using Quartz;
+using Quartz.Impl;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -87,6 +89,10 @@ namespace ManjuuPing
                             services.AddScoped(itemIntface, item);
                         }
                     }
+                    #endregion
+
+                    #region Quartz.Net
+                    services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();//注册ISchedulerFactory的实例。
                     #endregion
 
                     NLogMgr.SetVariable(NLogMgr.ConfigurationVariables.Terrace, "检测工具");

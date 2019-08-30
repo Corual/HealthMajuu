@@ -18,11 +18,13 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="2.2.0" />
     <PackageReference Include="NLog" Version="4.6.7" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="1.5.2" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="1.5.3" />
+    <PackageReference Include="Quartz" Version="3.0.7" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ManjuuApplications\ManjuuApplications.csproj" />
+    <ProjectReference Include="..\ManjuuDomain\ManjuuDomain.csproj" />
     <ProjectReference Include="..\ManjuuInfrastructure\ManjuuInfrastructure.csproj" />
   </ItemGroup>
 
