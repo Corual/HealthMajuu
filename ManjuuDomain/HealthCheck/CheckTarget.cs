@@ -72,7 +72,7 @@ namespace ManjuuDomain.HealthCheck
 
                 if (PingResultStatus.Pass == checkReesultInfo.Status)
                 {
-                    NLogMgr.CheckMsgLog(_checkLog, LogLevel.Debug, checkReesultInfo.GetResultInfoString(), pingResult, $"[{this.IpAddresV4}]{this.Remarks}");
+                    //NLogMgr.CheckMsgLog(_checkLog, LogLevel.Debug, checkReesultInfo.GetResultInfoString(), pingResult, $"[{this.IpAddresV4}]{this.Remarks}");
                     return;
                 }
 

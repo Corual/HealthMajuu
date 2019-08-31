@@ -43,7 +43,7 @@ namespace ManjuuPing
         /// </summary>
         private int _currentPage = 1;
         private int _totalPage = 0;
-        private int _capacity = 10;
+        private int _capacity = 1;
 
         private MapperConfiguration _mapperCfg = EntityAutoMapper.Instance.AutoMapperConfig(nameof(MachineInfo));
 
@@ -192,16 +192,27 @@ namespace ManjuuPing
         #region 创建任务
         private async Task CreateMissions()
         {
-            var list = await GetDataPage(_currentPage);
 
-            if (null == list || 0 == list.Count)
+            do
             {
-                return;
-            }
+                var list = await GetDataPage(_currentPage);
+                if (null == list || 0 == list.Count)
+                {
+                    return;
+                }
 
-            foreach (var item in list)
+                foreach (var item in list)
+                {
+                    item.TryPingAsync();
+                }
+
+
+            } while (++_currentPage <= _totalPage);
+
+            if (_currentPage > _totalPage)
             {
-                item.TryPingAsync();
+                //每轮把所有目标执行完毕都把页数重置成1
+                _currentPage = 1;
             }
 
 
