@@ -4,14 +4,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using JKang.IpcServiceFramework;
+using ManjuuCommon.ILog;
+using ManjuuCommon.ILog.NLog;
 using ManjuuDomain.Dto;
 using ManjuuDomain.HealthCheck;
 using ManjuuDomain.IDomain;
+using ManjuuInfrastructure.IpcService.ServiceContract;
 using ManjuuInfrastructure.Repository.Context;
 using ManjuuInfrastructure.Repository.Entity;
 using ManjuuInfrastructure.Repository.Enum;
 using ManjuuInfrastructure.Repository.Mapper.Auto;
 using Microsoft.EntityFrameworkCore;
+using NLog;
 
 namespace ManjuuInfrastructure.Repository
 {
@@ -21,7 +26,13 @@ namespace ManjuuInfrastructure.Repository
     public class CheckConfigRepository : ICheckConfigRepository
     {
         private MapperConfiguration _mapperCfg = EntityAutoMapper.Instance.AutoMapperConfig(nameof(JobConfiguration));
+        private IExceptionLog<ILogger> _errorLog;
 
+
+        public CheckConfigRepository(IExceptionLog<ILogger> errorLog)
+        {
+            _errorLog = errorLog;
+        }
 
         public async Task<bool> AddConfigDataAsync(CheckConfig config)
         {
@@ -41,8 +52,7 @@ namespace ManjuuInfrastructure.Repository
             }
             catch (System.Exception ex)
             {
-                System.Console.WriteLine(ex.Message);
-                //todo:日志记录异常
+                NLogMgr.ErrorExLog(_errorLog,"添加检测工具配置异常",ex);
                 return false;
             }
         }
@@ -62,22 +72,21 @@ namespace ManjuuInfrastructure.Repository
                 {
 
                     var query = context.JobConfigurations.Where(p => p.State != DataState.Disable).AsNoTracking();
-                    if (! await query.AnyAsync())
+                    if (!await query.AnyAsync())
                     {
                         return null;
                     }
 
                     List<JobConfiguration> jobList = await query.ToListAsync();
 
-                   return EntityAutoMapper.Instance.GetMapperResult<List<ToolConfigDto>>(_mapperCfg, jobList);
+                    return EntityAutoMapper.Instance.GetMapperResult<List<ToolConfigDto>>(_mapperCfg, jobList);
 
 
                 }
             }
             catch (System.Exception ex)
             {
-                System.Console.WriteLine(ex.Message);
-                //todo:日志记录异常
+                NLogMgr.ErrorExLog(_errorLog, "获取检测工具配置异常", ex);
                 return null;
             }
         }
@@ -131,8 +140,7 @@ namespace ManjuuInfrastructure.Repository
                         }
                         catch (System.Exception ex)
                         {
-                            System.Console.WriteLine(ex.Message);
-                            //todo:日志记录异常
+                            NLogMgr.ErrorExLog(_errorLog, "更新检测工具配置异常", ex);
                             if (null != transaction)
                             {
                                 transaction.Rollback();
@@ -144,8 +152,7 @@ namespace ManjuuInfrastructure.Repository
             }
             catch (System.Exception ex)
             {
-                System.Console.WriteLine(ex.Message);
-                //todo:日志记录异常
+                NLogMgr.ErrorExLog(_errorLog, "执行更新工具配置方法异常", ex);
                 return false;
             }
         }

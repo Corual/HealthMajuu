@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using ManjuuManagement.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Net.Http.Headers;
+using JKang.IpcServiceFramework;
+using ManjuuInfrastructure.IpcService.ServiceContract;
 
 namespace ManjuuManagement.Controllers
 {
@@ -15,12 +17,17 @@ namespace ManjuuManagement.Controllers
 
         private IHostingEnvironment _env;
 
+        //private IpcServiceClient<IDemoServiceContract> _client;
+
         public HomeController(IHostingEnvironment env)
         {
             _env = env;
+            //_client = client;
+            //, IpcServiceClient<IDemoServiceContract> client
         }
-        public IActionResult Index()
+        public  IActionResult Index()
         {
+            //_client.InvokeAsync(p => p.AddFloat(2.3f, 3.2f));
             return View();
         }
 

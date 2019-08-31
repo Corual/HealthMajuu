@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
+using JKang.IpcServiceFramework;
 using ManjuuApplications;
 using ManjuuCommon.ILog;
 using ManjuuDomain.IDomain;
+using ManjuuInfrastructure.IpcService.ServiceContract;
 using ManjuuManagement.Filters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -38,8 +41,8 @@ namespace ManjuuManagement
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-  
-         
+
+
             //配置IOC
             //Assembly.Load("ManjuuDomain");
             #region IRepository
@@ -77,9 +80,36 @@ namespace ManjuuManagement
                 {
                     if (typeof(IApplication) == itemIntface) { continue; }
                     //同一个请求下单例
-                    services.AddScoped(itemIntface, item); 
+                    services.AddScoped(itemIntface, item);
                 }
             }
+            #endregion
+
+            #region Ipc
+            //services.AddIpc(action =>
+            //{
+            //    action.AddNamedPipe(pipeOpt =>
+            //    {
+            //        pipeOpt.ThreadCount = 2;
+            //    }).AddService<IDemoServiceContract, DemoServiceContract>();
+
+            //});
+            #endregion
+
+            #region Ipc client
+            //IpcServiceClient<IDemoServiceContract> client = new IpcServiceClientBuilder<IDemoServiceContract>()
+            //.UseNamedPipe("pipeName") // or .UseTcp(IPAddress.Loopback, 45684) to invoke using TCP 
+            //.Build();
+            IpcServiceClient<ICheckConfigServiceContract> configClient = new IpcServiceClientBuilder<ICheckConfigServiceContract>()
+           .UseNamedPipe("configPipe")
+           .Build();
+
+            IpcServiceClient<ICheckTargetServiceContract> targetJobClient = new IpcServiceClientBuilder<ICheckTargetServiceContract>()
+        .UseNamedPipe("targetPipe")
+        .Build();
+
+            services.AddSingleton<IpcServiceClient<ICheckConfigServiceContract>>(configClient);
+            services.AddSingleton<IpcServiceClient<ICheckTargetServiceContract>>(targetJobClient);
             #endregion
 
             //让ioc自动帮我注入Filter
@@ -91,6 +121,7 @@ namespace ManjuuManagement
             //    opt.UseSqlite(Configuration.GetConnectionString("HealthManjuuCore")));
 
 
+
             services.AddMvc(option =>
             {
                 var serviceProvider = services.BuildServiceProvider();
@@ -98,6 +129,12 @@ namespace ManjuuManagement
                 option.ModelBinderProviders.Insert(0, new StringTrimModelBinderProvider(option.InputFormatters));
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
+
+            //var ipcServerHostBuilder = new IpcServiceHostBuilder(serviceProvider)
+            //    .AddNamedPipeEndpoint<IDemoServiceContract>("demoEnpoint", "pipeName")
+            //    .AddTcpEndpoint<IDemoServiceContract>("demoTcpEndpoiint",IPAddress.Loopback,2324)
+            //    .Build()
+            //    .RunAsync();
 
         }
 
@@ -137,7 +174,8 @@ namespace ManjuuManagement
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
 
-           
+
+
         }
     }
 }

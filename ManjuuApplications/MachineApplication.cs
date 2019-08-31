@@ -1,4 +1,5 @@
-﻿using ManjuuCommon.DataPackages;
+﻿using JKang.IpcServiceFramework;
+using ManjuuCommon.DataPackages;
 using ManjuuCommon.ILog;
 using ManjuuCommon.ILog.NLog;
 using ManjuuCommon.Tools;
@@ -6,6 +7,7 @@ using ManjuuDomain.Dto;
 using ManjuuDomain.FileAssist;
 using ManjuuDomain.FileAssistService;
 using ManjuuDomain.IDomain;
+using ManjuuInfrastructure.IpcService.ServiceContract;
 using Microsoft.AspNetCore.Http;
 using NLog;
 using OfficeOpenXml;
@@ -24,12 +26,14 @@ namespace ManjuuApplications
 
         private IProgramLog<ILogger> _programLog;
         private IExceptionLog<ILogger> _errorLog;
+        private IpcServiceClient<ICheckTargetServiceContract> _client;
 
-        public MachineApplication(ICheckTargetRepository repository, IProgramLog<ILogger> programLog, IExceptionLog<ILogger> errorLog)
+        public MachineApplication(ICheckTargetRepository repository, IProgramLog<ILogger> programLog, IExceptionLog<ILogger> errorLog, IpcServiceClient<ICheckTargetServiceContract> client)
         {
             Repository = repository;
             _programLog = programLog;
             _errorLog = errorLog;
+            _client = client;
         }
 
         public async Task<PageMsg<EquipmentDto>> PaggingMachinesAsync(int current, int capacity = 20)
@@ -69,7 +73,17 @@ namespace ManjuuApplications
             }
 
 
-            //todo:导入前通知工具退出
+            //导入前通知工具停止作业
+            NLogMgr.DebugLog(_programLog, "通知工具停止作业");
+            try
+            {
+                bool ipcResult = await _client.InvokeAsync(p => p.StopJob());
+                NLogMgr.DebugLog(_programLog, "工具反馈结果:" + ipcResult);
+            }
+            catch (Exception ipcEx)
+            {
+                NLogMgr.ErrorExLog(_errorLog, "ipc通信失败", ipcEx);
+            }
 
             List<EquipmentDto> list = await ExcelFileService.GetExcelDataAsync(file);
 
@@ -87,8 +101,9 @@ namespace ManjuuApplications
                 result = new JsonDataMsg<string>(null, success, "导入设备操作过程发生异常");
             }
 
-            //todo:导入后重新执行工具
-
+            //导入后重新开始作业
+            NLogMgr.DebugLog(_programLog, "通知工具可以继续作业");
+            _client.InvokeAsync(p => p.JobRestart());
             return result;
         }
 

@@ -8,15 +8,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="nlog_run_log\**" />
+    <EmbeddedResource Remove="nlog_run_log\**" />
+    <None Remove="nlog_run_log\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="debug_ping.bat" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="JKang.IpcServiceFramework.Server" Version="2.2.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.2.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
     <PackageReference Include="NLog" Version="4.6.7" />
     <PackageReference Include="NLog.Extensions.Logging" Version="1.5.3" />
     <PackageReference Include="Quartz" Version="3.0.7" />

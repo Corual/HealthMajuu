@@ -2,11 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
+using ManjuuCommon.ILog;
+using ManjuuCommon.ILog.NLog;
 using ManjuuDomain.HealthCheck;
 using ManjuuDomain.IDomain;
 using ManjuuInfrastructure.Repository;
 using ManjuuInfrastructure.Repository.Entity;
 using ManjuuInfrastructure.Repository.Mapper.Auto;
+using NLog;
 using NUnit.Framework;
 
 namespace ManjuuNUnitTest
@@ -43,7 +46,7 @@ namespace ManjuuNUnitTest
         [Test]
         public  async Task EfMapper()
         {
-            ICheckConfigRepository repository = new CheckConfigRepository();
+            ICheckConfigRepository repository = new CheckConfigRepository((IExceptionLog<ILogger>)NLogMgr.ExceptionNLog);
 
             var list =  await repository.GetValidConfigsAsync();
 

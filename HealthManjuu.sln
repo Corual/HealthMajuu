@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManjuuNUnitTest", "ManjuuNU
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManjuuCommon", "ManjuuCommon\ManjuuCommon.csproj", "{5D6383EA-F683-44A8-B573-DF9BFA122198}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManjuuManagement", "ManjuuManagement\ManjuuManagement.csproj", "{B724160B-6613-44D7-94DF-DA544308CA94}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManjuuManagement", "ManjuuManagement\ManjuuManagement.csproj", "{B724160B-6613-44D7-94DF-DA544308CA94}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
