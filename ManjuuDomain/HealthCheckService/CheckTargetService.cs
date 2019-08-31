@@ -9,6 +9,9 @@ using ManjuuDomain.Suppers;
 using ManjuuCommon.Tools;
 using System.Collections.Generic;
 using ManjuuDomain.Dto;
+using ManjuuCommon.ILog;
+using NLog;
+using ManjuuCommon.ILog.NLog;
 
 namespace ManjuuDomain.HealthCheckService
 {
@@ -24,6 +27,8 @@ namespace ManjuuDomain.HealthCheckService
         /// </summary>
         private static SupPingCmd _pingCmd;
 
+        private static IProgramLog<ILogger> _programLog = NLogMgr.ProgramNLog as IProgramLog<ILogger>;
+        public static IExceptionLog<ILogger> _errorLog = NLogMgr.ExceptionNLog as IExceptionLog<ILogger>;
         static CheckTargetService()
         {
             
@@ -56,22 +61,23 @@ namespace ManjuuDomain.HealthCheckService
                     //重定向输出流，便于获取ping命令结果
                     startInfo.RedirectStandardOutput = true;
                     //startInfo.StandardOutputEncoding = Encoding.UTF8;
+                    NLogMgr.DebugLog(_programLog, $"执行命令:{_pingCmd.PingName} {startInfo.Arguments}");
 
-                    Console.WriteLine($"执行命令:{_pingCmd.PingName} {startInfo.Arguments}{Environment.NewLine}");
                     //开始执行命令
                     process.Start();
                     using (StreamReader reader = process.StandardOutput)
                     {
                         result = await reader.ReadToEndAsync();
-                        System.Console.WriteLine($"{target.Remarks}执行完成===={TimeMgr.GetLoaclDateTime().ToString("yyyy-MM-dd HH:mm:ss:ffff")}===={Environment.NewLine}");
-                        Console.WriteLine(result);
+                        NLogMgr.DebugLog(_programLog, $"{target.Remarks}执行完成===={TimeMgr.GetLoaclDateTime().ToString("yyyy-MM-dd HH:mm:ss:ffff")}====");
+                        NLogMgr.DebugLog(_programLog, result);
                     }
 
                 }
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine(ex.Message);
+                //System.Console.WriteLine(ex.Message);
+                NLogMgr.ErrorExLog(_errorLog,"执行Ping操作异常",ex);
             }
 
             return result;

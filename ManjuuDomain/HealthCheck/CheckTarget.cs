@@ -2,13 +2,17 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using ManjuuCommon.ILog;
+using ManjuuCommon.ILog.NLog;
 using ManjuuCommon.Tools;
 using ManjuuDomain.HealthCheckService;
 using ManjuuDomain.IDomain;
 using ManjuuDomain.Suppers;
+using NLog;
+
 namespace ManjuuDomain.HealthCheck
 {
-    public class CheckTarget : SupEntity, IPingable,IAggregateRoot
+    public class CheckTarget : SupEntity, IPingable, IAggregateRoot
     {
         #region 属性
         /// <summary>
@@ -27,14 +31,12 @@ namespace ManjuuDomain.HealthCheck
         public string Remarks { get; private set; }
         #endregion
 
+        private readonly IProgramLog<ILogger> _programLog = NLogMgr.DefaultNLog as IProgramLog<ILogger>;
+        private readonly ICheckLog<ILogger> _checkLog = NLogMgr.CheckNLog as ICheckLog<ILogger>;
 
         #region 构造函数
-        public CheckTarget()
-        {
 
-        }
-
-        public CheckTarget(int id,string ipv4, string port, string remarks)
+        public CheckTarget(int id, string ipv4, string port, string remarks)
         {
             this.Id = id;
             this.IpAddresV4 = ipv4;
@@ -53,7 +55,8 @@ namespace ManjuuDomain.HealthCheck
             return Task.Run(async () =>
             {
                 string pingResult = await CheckTargetService.PingRemoteTargetAsync(this);
-                Console.WriteLine($"TryPingAsync=>{this.Remarks}调用结束{Environment.NewLine}");
+
+                NLogMgr.DebugLog(_programLog, $"TryPingAsync=>{this.Remarks}调用结束{Environment.NewLine}");
 
                 ////返回空串证明地址ping出了异常
                 //if (string.IsNullOrWhiteSpace(pingResult))
@@ -62,16 +65,21 @@ namespace ManjuuDomain.HealthCheck
                 //    return;
                 //}
 
-                CheckReesultInfo checkReesultInfo = await CheckResultService.UnscramblePingResultAsync(IpAddresV4,TargetPort,Remarks, TimeMgr.GetLoaclDateTime(), pingResult);
+                CheckReesultInfo checkReesultInfo = await CheckResultService.UnscramblePingResultAsync(IpAddresV4, TargetPort, Remarks, TimeMgr.GetLoaclDateTime(), pingResult);
 
-                Console.WriteLine($"{ checkReesultInfo.GetResultInfoString()} { Environment.NewLine}");
+
+                
 
                 if (PingResultStatus.Pass == checkReesultInfo.Status)
                 {
+                    NLogMgr.CheckMsgLog(_checkLog, LogLevel.Debug, checkReesultInfo.GetResultInfoString(), pingResult, $"[{this.IpAddresV4}]{this.Remarks}");
                     return;
                 }
 
-                //todo:将非正常结果推送到消息队列(考虑开发时间问题,目前先直接写入数据库)
+                //todo:将非正常结果推送到消息队列(考虑开发时间问题,目前先直接写入日志)
+
+                NLogMgr.CheckMsgLog(_checkLog, LogLevel.Error, checkReesultInfo.GetResultInfoString(), pingResult, $"[{this.IpAddresV4}]{this.Remarks}");
+
 
                 //Console.Clear();
             });

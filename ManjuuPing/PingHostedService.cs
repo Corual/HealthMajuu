@@ -1,9 +1,13 @@
-﻿using JKang.IpcServiceFramework;
+﻿using AutoMapper;
+using JKang.IpcServiceFramework;
 using ManjuuApplications;
 using ManjuuCommon.ILog;
 using ManjuuCommon.ILog.NLog;
 using ManjuuDomain.Dto;
 using ManjuuDomain.HealthCheck;
+using ManjuuDomain.IDomain;
+using ManjuuInfrastructure.Repository.Entity;
+using ManjuuInfrastructure.Repository.Mapper.Auto;
 using ManjuuPing.IpcServerImp;
 using Microsoft.Extensions.Hosting;
 using NLog;
@@ -22,6 +26,7 @@ namespace ManjuuPing
         private readonly IProgramLog<ILogger> _programLog;
         private readonly IExceptionLog<ILogger> _errorLog;
         private IToolConfigApplication _toolConfigApplication;
+        private ICheckTargetRepository _repository;
 
         private readonly ISchedulerFactory _schedulerFactory;
         private IScheduler _scheduler;
@@ -36,16 +41,21 @@ namespace ManjuuPing
         /// <summary>
         /// 记录当前数据检测到第几页
         /// </summary>
-        private int _rurrentPage = 0;
+        private int _currentPage = 1;
+        private int _totalPage = 0;
+        private int _capacity = 10;
+
+        private MapperConfiguration _mapperCfg = EntityAutoMapper.Instance.AutoMapperConfig(nameof(MachineInfo));
 
 
-        public PingHostedService(IProgramLog<ILogger> programLog, IExceptionLog<ILogger> errorLog, IToolConfigApplication toolConfigApplication, ISchedulerFactory schedulerFactory, IIpcServiceHost ipcServiceHost)
+        public PingHostedService(IProgramLog<ILogger> programLog, IExceptionLog<ILogger> errorLog, IToolConfigApplication toolConfigApplication, ICheckTargetRepository repository, ISchedulerFactory schedulerFactory, IIpcServiceHost ipcServiceHost)
         {
             _programLog = programLog;
             _errorLog = errorLog;
             _toolConfigApplication = toolConfigApplication;
             this._schedulerFactory = schedulerFactory;
             _ipcServiceHost = ipcServiceHost;
+            _repository = repository;
         }
 
 
@@ -56,12 +66,15 @@ namespace ManjuuPing
 
             //await QuartzDemo();
 
-           await  IpcServerRun();
+            await IpcServerRun();
 
-            await LoadToolParamAsync();
+            if (!await LoadToolParamAsync())
+            {
+                return;
+            }
 
             //todo:根据配置，生成定时任务
-
+            CreateMissions();
             return;
         }
         #endregion
@@ -126,7 +139,7 @@ namespace ManjuuPing
         #endregion
 
         #region IpcServer
-        public  Task IpcServerRun()
+        public Task IpcServerRun()
         {
             if (null == _ipcServiceHost) { return Task.CompletedTask; }
 
@@ -146,7 +159,7 @@ namespace ManjuuPing
         #region IpcCallBack
         private void ToolCofigurationModified()
         {
-            NLogMgr.DebugLog(_programLog,"收到工具配置改动消息");
+            NLogMgr.DebugLog(_programLog, "收到工具配置改动消息");
 
         }
 
@@ -163,20 +176,57 @@ namespace ManjuuPing
         #endregion
 
         #region 异步获取工具参数
-        private async Task LoadToolParamAsync()
+        private async Task<bool> LoadToolParamAsync()
         {
             var toolSetting = await LoadToolConfigAsync();
 
-            if (null == toolSetting) { return; }
+            if (null == toolSetting) { return false; }
 
             _runParam = CheckConfig.GetRunParam(toolSetting);
+
+            return null != _runParam;
         }
 
         #endregion
 
         #region 创建任务
-        private void CreateMissions()
+        private async Task CreateMissions()
         {
+            var list = await GetDataPage(_currentPage);
+
+            if (null == list || 0 == list.Count)
+            {
+                return;
+            }
+
+            foreach (var item in list)
+            {
+                item.TryPingAsync();
+            }
+
+
+        }
+        #endregion
+
+        #region 获取页数据
+        private async Task<List<CheckTarget>> GetDataPage(int page)
+        {
+            DataBoxDto<EquipmentDto> dataBoxDto = await _repository.QuantitativeTargetsAsync(_currentPage, _capacity);
+            if (0 == dataBoxDto.Total)
+            {
+                NLogMgr.DebugLog(_programLog, "首次获取数据，发现没有可检测的目标");
+                return null;
+            }
+
+            if (1 == page)
+            {
+                //有数据则根据数据，得到总分页数，便于后续遍历
+                _totalPage = (int)Math.Ceiling(dataBoxDto.Total * 1.0 / _capacity);
+            }
+
+
+            return EntityAutoMapper.Instance.GetMapperResult<List<CheckTarget>>(_mapperCfg, dataBoxDto.Data);
+
 
         }
         #endregion
