@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <None Remove="debug_ping.bat" />
+    <None Remove="run.bat" />
   </ItemGroup>
 
   <ItemGroup>

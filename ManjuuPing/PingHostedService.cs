@@ -36,14 +36,14 @@ namespace ManjuuPing
         /// <summary>
         /// 工具运行参数
         /// </summary>
-        private ToolRunParam _runParam;
+        public ToolRunParam RunParam { get; private set; }
 
         /// <summary>
         /// 记录当前数据检测到第几页
         /// </summary>
-        private int _currentPage = 1;
-        private int _totalPage = 0;
-        private int _capacity = 1;
+        public int CurrentPage { get; set; } = 1;
+        public int TotalPage { get; private set; } = 0;
+        public int Capacity { get; private set; } = 10;
 
         private MapperConfiguration _mapperCfg = EntityAutoMapper.Instance.AutoMapperConfig(nameof(MachineInfo));
 
@@ -74,7 +74,7 @@ namespace ManjuuPing
             }
 
             //todo:根据配置，生成定时任务
-            CreateMissions();
+            ExecuteMissions();
             return;
         }
         #endregion
@@ -83,6 +83,9 @@ namespace ManjuuPing
         public Task StopAsync(CancellationToken cancellationToken)
         {
             //throw new NotImplementedException();
+
+
+            StopScheduler();
 
             if (null != _source)
             {
@@ -123,9 +126,11 @@ namespace ManjuuPing
             await _scheduler.Start();
 
             //3、创建一个触发器
-            var trigger = TriggerBuilder.Create()
-                            .WithSimpleSchedule(x => x.WithIntervalInSeconds(2).RepeatForever())//每两秒执行一次
-                            .Build();
+            var trigger = TriggerBuilder.Create().WithDailyTimeIntervalSchedule(p => p.OnEveryDay()
+                .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(7, 0))
+                .EndingDailyAt(TimeOfDay.HourAndMinuteOfDay(12, 30))
+                .WithRepeatCount(int.MaxValue))
+                    .Build();
 
             //4、创建任务
             var jobDetail = JobBuilder.Create<MyJob>()
@@ -157,21 +162,31 @@ namespace ManjuuPing
         #endregion
 
         #region IpcCallBack
-        private void ToolCofigurationModified()
+        private async Task ToolCofigurationModified()
         {
             NLogMgr.DebugLog(_programLog, "收到工具配置改动消息");
+            await PauseScheduler();
+            await StopScheduler();
+            if (!await LoadToolParamAsync())
+            {
+                return;
+            }
+
+            await ExecuteMissions();
 
         }
 
-        private bool StopJob()
+        private async Task<bool> StopJob()
         {
-            NLogMgr.DebugLog(_programLog, "收到停止作业消息");
-            return false;
+            NLogMgr.DebugLog(_programLog, "收到暂停作业消息");
+            await PauseScheduler();
+            return true;
         }
 
-        private void JobRestart()
+        private async Task JobRestart()
         {
             NLogMgr.DebugLog(_programLog, "收到重新作业消息");
+            await RestartScheduler();
         }
         #endregion
 
@@ -182,47 +197,56 @@ namespace ManjuuPing
 
             if (null == toolSetting) { return false; }
 
-            _runParam = CheckConfig.GetRunParam(toolSetting);
+            RunParam = CheckConfig.GetRunParam(toolSetting);
 
-            return null != _runParam;
+            return null != RunParam;
         }
 
         #endregion
 
-        #region 创建任务
-        private async Task CreateMissions()
+        #region 执行任务
+        private async Task ExecuteMissions()
         {
+            _scheduler = await _schedulerFactory.GetScheduler();
+            Quartz.ITrigger trigger = null;
 
-            do
+
+            if (RunParam.WorkType == ToolWorkType.AllDay)
             {
-                var list = await GetDataPage(_currentPage);
-                if (null == list || 0 == list.Count)
-                {
-                    return;
-                }
-
-                foreach (var item in list)
-                {
-                    item.TryPingAsync();
-                }
-
-
-            } while (++_currentPage <= _totalPage);
-
-            if (_currentPage > _totalPage)
+                //每分钟执行一次
+                trigger = TriggerBuilder.Create().WithSimpleSchedule(p => p.WithIntervalInMinutes(1)).Build();
+            }
+            else if (RunParam.WorkType == ToolWorkType.TimeToTime)
             {
-                //每轮把所有目标执行完毕都把页数重置成1
-                _currentPage = 1;
+                string[] start = RunParam.TimeToStart.Split(':');
+                string[] stop = RunParam.TimeToStop.Split(':');
+                trigger = TriggerBuilder.Create().WithDailyTimeIntervalSchedule(p => p.OnEveryDay()
+                .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(int.Parse(start[0]), int.Parse(start[1])))
+                .EndingDailyAt(TimeOfDay.HourAndMinuteOfDay(int.Parse(stop[0]), int.Parse(stop[1])))
+                .WithIntervalInSeconds(10))
+                    .Build();
+            }
+            else
+            {
+                //未支持，立马返回
+                return;
             }
 
+            IJobDetail jobDetail = JobBuilder.Create<PingJob>().WithIdentity("ping", "healthCheck").UsingJobData(new JobDataMap(new Dictionary<string, PingHostedService> { { "runData", this } })).Build();
+
+            await _scheduler.Start();
+            NLogMgr.DebugLog(_programLog, "定时任务开始");
+            await _scheduler.ScheduleJob(jobDetail, trigger);
+
+            return;
 
         }
         #endregion
 
         #region 获取页数据
-        private async Task<List<CheckTarget>> GetDataPage(int page)
+        public async Task<List<CheckTarget>> GetDataPage(int page)
         {
-            DataBoxDto<EquipmentDto> dataBoxDto = await _repository.QuantitativeTargetsAsync(_currentPage, _capacity);
+            DataBoxDto<EquipmentDto> dataBoxDto = await _repository.QuantitativeTargetsAsync(CurrentPage, Capacity);
             if (0 == dataBoxDto.Total)
             {
                 NLogMgr.DebugLog(_programLog, "首次获取数据，发现没有可检测的目标");
@@ -232,13 +256,47 @@ namespace ManjuuPing
             if (1 == page)
             {
                 //有数据则根据数据，得到总分页数，便于后续遍历
-                _totalPage = (int)Math.Ceiling(dataBoxDto.Total * 1.0 / _capacity);
+                TotalPage = (int)Math.Ceiling(dataBoxDto.Total * 1.0 / Capacity);
             }
 
 
             return EntityAutoMapper.Instance.GetMapperResult<List<CheckTarget>>(_mapperCfg, dataBoxDto.Data);
 
 
+        }
+        #endregion
+
+        #region StopScheduler
+        private async Task StopScheduler()
+        {
+            if (null != _scheduler && !_scheduler.IsShutdown)
+            {
+                await _scheduler.Shutdown();
+                NLogMgr.DebugLog(_programLog, "定时任务结束");
+            }
+        }
+        #endregion
+
+        #region PauseScheduler
+        private async Task PauseScheduler()
+        {
+            if (null != _scheduler && _scheduler.IsStarted)
+            {
+                await _scheduler.PauseJob(new JobKey("ping"));
+                NLogMgr.DebugLog(_programLog, "定时任务暂停");
+            }
+        }
+        #endregion
+
+
+        #region RestartScheduler
+        private async Task RestartScheduler()
+        {
+            if (null != _scheduler && _scheduler.IsShutdown)
+            {
+                await _scheduler.ResumeJob(new JobKey("ping"));
+                NLogMgr.DebugLog(_programLog, "定时任务恢复工作");
+            }
         }
         #endregion
 

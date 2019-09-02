@@ -11,7 +11,7 @@ namespace ManjuuPing
         {
             return Task.Run(() =>
             {
-                Console.WriteLine((DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss")));
+                Console.WriteLine(("hello world=>")+ context.NextFireTimeUtc?.LocalDateTime);
             });
         }
     }

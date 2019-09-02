@@ -65,6 +65,11 @@ namespace ManjuuCommon.ILog.NLog
             /// 检测结果
             /// </summary>
             CheckResult,
+
+            /// <summary>
+            /// 接收时间
+            /// </summary>
+            CheckReceive,
         }
 
 
@@ -175,13 +180,14 @@ namespace ManjuuCommon.ILog.NLog
         /// <param name="msg"></param>
         /// <param name="result"></param>
         /// <param name="equipment"></param>
-        public static void CheckMsgLog(ICheckLog<ILogger> checkLog, LogLevel level, string msg, string result, string equipment)
+        public static void CheckMsgLog(ICheckLog<ILogger> checkLog, LogLevel level, string msg, string result, string equipment, DateTime receiveTime)
         {
             LogEventInfo theEvent = NLogMgr.GetEventInfo(level, "", NLogMgr.LoggerName.Check);
             NLogMgr.SetEventProperties(theEvent,
                 new SetEventPropertieParam(NLogMgr.EventProperties.CheckTarget,  equipment),
                 new SetEventPropertieParam(NLogMgr.EventProperties.CheckMsg, msg ),
-                new SetEventPropertieParam(NLogMgr.EventProperties.CheckResult, result) );
+                new SetEventPropertieParam(NLogMgr.EventProperties.CheckResult, result),
+                new SetEventPropertieParam(NLogMgr.EventProperties.CheckReceive, receiveTime.ToString("yyyy-MM-dd HH:mm:ss.ffff")));
 
             checkLog.GetLogger().Log(theEvent);
         }

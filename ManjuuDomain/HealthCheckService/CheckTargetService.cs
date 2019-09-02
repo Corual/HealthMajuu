@@ -43,8 +43,10 @@ namespace ManjuuDomain.HealthCheckService
         /// 异步Ping远程目标
         /// </summary>
         /// <param name="target">目标</param>
+        /// <param name="timeout">超时时间</param>
+        /// <param name="tryCount">ping的次数</param>
         /// <returns>方法执行成功返回非空且非空白字符串，否则统一返回空串</returns>
-        public static async Task<string> PingRemoteTargetAsync(IPingable target)
+        public static async Task<string> PingRemoteTargetAsync(IPingable target, int timeout, int tryCount)
         {
             string result = string.Empty;
             try
@@ -55,7 +57,11 @@ namespace ManjuuDomain.HealthCheckService
                     startInfo.FileName = _pingCmd.PingName;
                     //对目标执行ping操作四次,超时为1秒
                     //todao:这里的ping4次数跟超时预设，需要使用数据库配置
-                    startInfo.Arguments = string.Format($" {target.IpAddresV4} {_pingCmd.RepeatParam} 4 {_pingCmd.TimeoutParam} 1000");
+                    if (tryCount < 1)
+                    {
+                        tryCount = 4;
+                    }
+                    startInfo.Arguments = string.Format($" {target.IpAddresV4} {_pingCmd.RepeatParam} {tryCount} {_pingCmd.TimeoutParam} {timeout.ToString()}");
 
 
                     //重定向输出流，便于获取ping命令结果
@@ -68,8 +74,9 @@ namespace ManjuuDomain.HealthCheckService
                     using (StreamReader reader = process.StandardOutput)
                     {
                         result = await reader.ReadToEndAsync();
-                        NLogMgr.DebugLog(_programLog, $"{target.Remarks}执行完成===={TimeMgr.GetLoaclDateTime().ToString("yyyy-MM-dd HH:mm:ss:ffff")}====");
-                        NLogMgr.DebugLog(_programLog, result);
+                        //NLogMgr.DebugLog(_programLog, $"{target.Remarks}执行完成===={TimeMgr.GetLoaclDateTime().ToString("yyyy-MM-dd HH:mm:ss:ffff")}====");
+                        //NLogMgr.DebugLog(_programLog, result);
+                        //Console.WriteLine($"{target.Remarks}执行完成===={TimeMgr.GetLoaclDateTime().ToString("yyyy-MM-dd HH:mm:ss:ffff")}====");
                     }
 
                 }

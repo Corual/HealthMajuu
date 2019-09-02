@@ -5,6 +5,10 @@
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="run.bat" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="JKang.IpcServiceFramework.Client" Version="2.2.2" />

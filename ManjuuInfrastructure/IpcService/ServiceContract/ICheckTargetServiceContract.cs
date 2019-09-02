@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ManjuuInfrastructure.IpcService.ServiceContract
 {
     public interface ICheckTargetServiceContract: IServiceContract
     {
-        bool StopJob();
+        Task<bool> StopJob();
 
-        void JobRestart();
+        Task JobRestart();
     }
 }

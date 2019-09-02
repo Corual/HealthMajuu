@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ManjuuPing.IpcServerImp
 {
@@ -10,42 +11,46 @@ namespace ManjuuPing.IpcServerImp
         /// <summary>
         /// 配置更改响应事件
         /// </summary>
-        public static event Action ResponseConfigModified;
+        public static event Func<Task> ResponseConfigModified;
 
         /// <summary>
         /// 响应停止作业事件
         /// </summary>
-        public static event Func<bool> ResponseStopJob;
+        public static event Func<Task<bool>> ResponseStopJob;
 
         /// <summary>
         /// 响应重新作业事件
         /// </summary>
-        public static event Action ResponseJobRestart;
+        public static event Func<Task> ResponseJobRestart;
 
-        public void ConfigWasModify()
+        public Task ConfigWasModify()
         {
             if (null != ResponseConfigModified)
             {
-                ResponseConfigModified();
+              return  ResponseConfigModified();
             }
+
+            return Task.CompletedTask;
         }
 
-        public void JobRestart()
+        public Task JobRestart()
         {
             if (null != ResponseJobRestart)
             {
-                ResponseJobRestart();
+               return ResponseJobRestart();
             }
+
+            return Task.CompletedTask;
         }
 
-        public bool StopJob()
+        public Task<bool> StopJob()
         {
             if (null != ResponseStopJob)
             {
                 return ResponseStopJob();
             }
 
-            return false;
+            return Task.FromResult<bool>(false);
         }
     }
 }

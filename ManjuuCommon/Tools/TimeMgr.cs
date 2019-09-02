@@ -8,7 +8,9 @@ namespace ManjuuCommon.Tools
     {
         public static DateTime GetLoaclDateTime()
         {
-            return TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.Local);
+            // return TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.Local);
+
+            return DateTime.UtcNow.ToLocalTime();
         }
     }
 }

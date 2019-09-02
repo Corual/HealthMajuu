@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ManjuuInfrastructure.IpcService.ServiceContract
 {
@@ -10,6 +11,6 @@ namespace ManjuuInfrastructure.IpcService.ServiceContract
         /// 配置已更改
         /// </summary>
         /// <returns></returns>
-        void ConfigWasModify();
+        Task ConfigWasModify();
     }
 }

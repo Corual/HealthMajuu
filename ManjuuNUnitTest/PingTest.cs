@@ -22,7 +22,7 @@ namespace ManjuuNUnitTest
             IPingable target = new CheckTarget(1,"www.baidu.com", "80", "百度");
             Assert.NotNull(target);
 
-            string result = await CheckTargetService.PingRemoteTargetAsync(target);
+            string result = await CheckTargetService.PingRemoteTargetAsync(target,1000,4);
             Assert.NotNull(result);
             Assert.IsNotEmpty(result);
 
